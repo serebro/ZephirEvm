@@ -17,7 +17,7 @@ class SharedEventManager implements Zephir\EventManager\SharedEventAggregateAwar
             let identifiers = [];
         }
 
-        if typeof(id) != "array" {
+        if typeof id != "array" {
             let ids = [id];
         } else {
             let ids = id;

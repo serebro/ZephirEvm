@@ -35,7 +35,10 @@ class StaticEventManager extends Zephir\EventManager\SharedEventManager
      */
     public static function getInstance()
     {
-        if null === self::instance {
+        var instance;
+        let instance = self::instance;
+
+        if typeof instance == "null" {
             self::setInstance(new self());
         }
 
