@@ -10,7 +10,7 @@ interface SharedEventManagerAwareInterface
      * @param  SharedEventManagerInterface $sharedEventManager
      * @return SharedEventManagerAwareInterface
      */
-    public function setSharedManager(sharedEventManager);
+    public function setSharedManager(<Zephir\EventManager\SharedEventManagerInterface> sharedEventManager);
 
     /**
      * Get shared collections container
