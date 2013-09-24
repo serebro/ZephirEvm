@@ -32,7 +32,6 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
      */
     protected sharedManager = null;
 
-
     /**
      * Constructor
      *
@@ -105,7 +104,7 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
             return this->sharedManager;
         }
 
-        if !StaticEventManager::hasInstance() {
+        if !Zephir\EventManager\StaticEventManager::hasInstance() {
             return false;
         }
 
@@ -371,7 +370,7 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
     public function detach(listener)
     {
         if listener instanceof Zephir\EventManager\ListenegerAggregateInterface {
-            return this->detatchAggregate(listener);
+            return this->detachAggregate(listener);
         }
 
         if listener instanceof Zend\Stdlib\CallbackHandler {
@@ -392,7 +391,7 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
         }
 
         var event;
-        let event = listener->getMetadatum('event');
+        let event = listener->getMetadatum("event");
 
         if !event {
             return false;
@@ -409,11 +408,12 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
             return false;
         }
 
-        if !count(this->events(event)) {
-            var events;
-            let events = this->events;
+        var events;
+        let events = this->events;
 
+        if !count(events[event]) {
             unset events[event];
+            let this->events = events;
         }
 
         return true;
@@ -488,7 +488,7 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
      */
     public function prepareArgs(args)
     {
-        if typeof(args) != "array" {
+        if typeof args != "array" {
              trigger_error("First argument passed to prepareArgs must be of type array", E_USER_ERROR);
         }
 
@@ -618,9 +618,9 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
         for listener in listeners {
 
             var priority;
-            let priority = listener->getMetadatum(priority);
+            let priority = listener->getMetadatum("priority");
 
-            if null === priority {
+            if priority === null {
                 let priority = 1;
             }
 

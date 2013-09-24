@@ -2,8 +2,7 @@
 
 namespace Zephir\EventManager;
 
-class SharedEventManager implements Zephir\EventManager\SharedEventAggregateAwareInterface,
-                                    Zephir\EventManager\SharedEventManagerInterface
+class SharedEventManager implements Zephir\EventManager\SharedEventAggregateAwareInterface, Zephir\EventManager\SharedEventManagerInterface
 {
     protected identifiers;
 
@@ -49,7 +48,7 @@ class SharedEventManager implements Zephir\EventManager\SharedEventAggregateAwar
         return aggregate->attachShared(this, priority);
     }
 
-    public function detch(id, <Zend\Stdlib\CallbackHandler> listener)
+    public function detach(id, <Zend\Stdlib\CallbackHandler> listener)
     {
         var identifiers;
         let identifiers = this->identifiers;
@@ -108,9 +107,9 @@ class SharedEventManager implements Zephir\EventManager\SharedEventAggregateAwar
         }
 
         var identifiers;
-        let identifiers = this->identififers;
+        let identifiers = this->identifiers;
 
-        if (null == event) {
+        if event === null {
             unset identifiers[id];
             let this->identifiers = identifiers;
 
