@@ -88,7 +88,7 @@ class SharedEventManager implements Zephir\EventManager\SharedEventAggregateAwar
         return evm->getEvents();
     }
 
-    public function getListeners()
+    public function getListeners(id, event)
     {
         if !array_key_exists(id, this->identifiers) {
             return false;
@@ -98,5 +98,28 @@ class SharedEventManager implements Zephir\EventManager\SharedEventAggregateAwar
         let identifiers = this->identifiers;
         let evm = identifiers[id];
 
+        return evm->getListeners(event);
+    }
+
+    public function clearListeners(id, event = null)
+    {
+        if !array_key_exists(id, this->identifiers) {
+            return false;
+        }
+
+        var identifiers;
+        let identifiers = this->identififers;
+
+        if (null == event) {
+            unset identifiers[id];
+            let this->identifiers = identifiers;
+
+            return true;
+        }
+
+        var evm;
+        let evm = identifiers[id];
+        return evm->clearListeners(event);
+    }
 }
 
