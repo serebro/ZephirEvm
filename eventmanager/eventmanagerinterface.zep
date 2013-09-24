@@ -119,7 +119,7 @@ interface EventManagerInterface extends Zephir\EventManager\SharedEventManagerAw
      * @param  int $priority If provided, a suggested priority for the aggregate to use
      * @return mixed return value of {@link ListenerAggregateInterface::attach()}
      */
-    public function attachAggregate(aggregate, priority = 1);
+    public function attachAggregate(<Zephir\EventManager\ListenerAggregateInterface> aggregate, priority = 1);
 
     /**
      * Detach a listener aggregate
@@ -127,6 +127,6 @@ interface EventManagerInterface extends Zephir\EventManager\SharedEventManagerAw
      * @param  ListenerAggregateInterface $aggregate
      * @return mixed return value of {@link ListenerAggregateInterface::detach()}
      */
-    public function detachAggregate(aggregate);
+    public function detachAggregate(<Zephir\EventManager\ListenerAggregateInterface> aggregate);
 }
 

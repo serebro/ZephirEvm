@@ -5,17 +5,42 @@ namespace Zephir\EventManager;
 class EventManager implements Zephir\EventManager\EventManagerInterface
 {
     /**
-     * @var array
+     * Subscribed events and their listeners
+     *
+     * @var PriorityQueue[]
      */
     protected events;
 
+    /**
+     * Class representing the event being emitted
+     *
+     * @var string
+     */
     protected eventClass = "Zend\EventManager\Event";
 
+    /**
+     * Identifiers, used to pull shared signals from an SharedEventManagerInterface instance
+     *
+     * @var array
+     */
     protected identifiers;
 
+    /**
+     * Shared event manager
+     *
+     * @var false|null|SharedEventManagerInterface
+     */
     protected sharedManager = null;
 
 
+    /**
+     * Constructor
+     *
+     * Allows optionally specifying identifier(s) to use to pull signals from a shared
+     * EventManagerInterface.
+     *
+     * return null|string|int|array|\Traversable
+     */
     public function __construct(identifiers = null)
     {
         let this->events = [];
@@ -24,6 +49,87 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
         this->setIdentifiers(identifiers);
     }
 
+    /**
+     * Set the event class to utilize
+     *
+     * @param string eventClass
+     * @return EventManager
+     */
+    public function setEventClass(string eventClass)
+    {
+        let this->eventClass = eventClass;
+        return this;
+    }
+
+    /**
+     * Set shared event manager
+     *
+     * @param SharedEventManagerInterface sharedEventManager
+     * @return EventManager
+     */
+    public function setSharedManager(<Zephir\EventManager\SharedEventManagerInterface> sharedEventManager)
+    {
+        let this->sharedManager = sharedEventManager;
+        Zephir\EventManager\StaticEventManager::setInstance(sharedEventManager);
+        return this;
+    }
+
+    /**
+     * Remove any shared event manager currently attached
+     *
+     * @return void
+     */
+    public function unsetSharedManager()
+    {
+        let this->sharedManager = false;
+    }
+
+    /**
+     * Get shared event manager
+     *
+     * If one is not defined, but we have a static instance in
+     * StaticEventManager, that one will be used and set in this instance.
+     *
+     * If none is available in the StaticEventManager, a boolean false is
+     * returned.
+     *
+     * @return false|SharedEventManagerInterface
+     */
+    public function getSharedManager()
+    {
+        if this->sharedManager === false {
+            return false;
+        }
+
+        if this->sharedManager instanceof Zephir\EventManager\SharedEventManagerInterface {
+            return this->sharedManager;
+        }
+
+        if !StaticEventManager::hasInstance() {
+            return false;
+        }
+
+        let this->sharedManager = Zephir\EventManager\StaticEventManager::getInstance();
+        return this->sharedManager;
+    }
+
+    /**
+     * Get the identifier(s) for this EventManager
+     *
+     * @return array
+     */
+    public function getIdentifiers()
+    {
+        return this->identifiers;
+    }
+
+    /**
+     * Set the identifiers (overrides any currently set identifiers)
+     *
+     * @param string|int|array|\Traversable identifiers
+     *
+     * @return EventManager
+     */
     public function setIdentifiers(identifiers)
     {
         if identifiers === null {
@@ -43,6 +149,13 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
         return this;
     }
 
+    /**
+     * Add some identifier(s) (appends to any currently set identifiers)
+     *
+     * @param string|int|array|\Traversable
+     *
+     * @return EventManager
+     */
     public function addIdentifiers(identifiers)
     {
         if identifiers == null {
@@ -62,46 +175,19 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
         return this;
     }
 
-    public function getIdentifiers()
-    {
-        return this->identifiers;
-    }
 
-    public function attach(event, callback = null, priority = 1)
-    {
-        if event instanceof ListenerAggregateInterface {
-             throw new Exception("Not yet implemented");
-        }
-
-        if !is_callable(callback) {
-            throw new Exception("invalid callback");
-        }
-
-        if is_array(event) {
-
-            var e, listeners;
-            let listeners = [];
-
-            for e in event {
-                let listeners[] = this->attach(e, callback, priority);
-            }
-
-            return listeners;
-        }
-
-        if !array_key_exists(event, this->events) {
-            let this->events[event] = new SplPriorityQueue();
-        }
-
-        var events, queue, listener;
-
-        let events = this->events;
-        let queue = events[event];
-        let listener = new Zend\Stdlib\CallbackHandler(callback, ["event":  event, "priority":  priority]);
-
-        queue->insert(listener, priority);
-    }
-
+    /**
+     * Trigger all listeners for a given event
+     *
+     * Can emulate triggerUntil() if the last argument provided is a callback.
+     *
+     * @param  string $event
+     * @param  string|object $target Object calling emit, or symbol describing target (such as static method name)
+     * @param  array|ArrayAccess $argv Array of arguments; typically, should be associative
+     * @param  null|callable $callback
+     * @return ResponseCollection All listener return values
+     * @throws Exception\InvalidCallbackException
+     */
     public function trigger(event, target = null, argv = null, callback = null)
     {
         if argv === null {
@@ -146,6 +232,20 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
         return this->triggerListeners(event, e, callback);
     }
 
+    /**
+     * Trigger listeners until return value of one causes a callback to
+     * evaluate to true
+     *
+     * Triggers listeners until the provided callback evaluates the return
+     * value of one as true, or until all listeners have been executed.
+     *
+     * @param  string $event
+     * @param  string|object $target Object calling emit, or symbol describing target (such as static method name)
+     * @param  array|ArrayAccess $argv Array of arguments; typically, should be associative
+     * @param  callable $callback
+     * @return ResponseCollection
+     * @throws Exception\InvalidCallbackException if invalid callable provided
+     */
     public function triggerUntil(event, target, argv = null, callback = null)
     {
         if argv === null {
@@ -190,6 +290,222 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
         return this->triggerListeners(event, e, callback);
     }
 
+    /**
+     * Attach a listener to an event
+     *
+     * The first argument is the event, and the next argument describes a
+     * callback that will respond to that event. A CallbackHandler instance
+     * describing the event listener combination will be returned.
+     *
+     * The last argument indicates a priority at which the event should be
+     * executed. By default, this value is 1; however, you may set it for any
+     * integer value. Higher values have higher priority (i.e., execute first).
+     *
+     * You can specify "*" for the event name. In such cases, the listener will
+     * be triggered for every event.
+     *
+     * @param  string|array|ListenerAggregateInterface $event An event or array of event names. If a ListenerAggregateInterface, proxies to {@link attachAggregate()}.
+     * @param  callable|int $callback If string $event provided, expects PHP callback; for a ListenerAggregateInterface $event, this will be the priority
+     * @param  int $priority If provided, the priority at which to register the callable
+     * @return CallbackHandler|mixed CallbackHandler if attaching callable (to allow later unsubscribe); mixed if attaching aggregate
+     * @throws Exception\InvalidArgumentException
+     */
+    public function attach(event, callback = null, priority = 1)
+    {
+        if event instanceof ListenerAggregateInterface {
+             throw new Exception("Not yet implemented");
+        }
+
+        if !is_callable(callback) {
+            throw new Exception("invalid callback");
+        }
+
+        if is_array(event) {
+
+            var e, listeners;
+            let listeners = [];
+
+            for e in event {
+                let listeners[] = this->attach(e, callback, priority);
+            }
+
+            return listeners;
+        }
+
+        if !array_key_exists(event, this->events) {
+            let this->events[event] = new SplPriorityQueue();
+        }
+
+        var events, queue, listener;
+
+        let events = this->events;
+        let queue = events[event];
+        let listener = new Zend\Stdlib\CallbackHandler(callback, ["event":  event, "priority":  priority]);
+
+        queue->insert(listener, priority);
+    }
+
+    /**
+     * Attach a listener aggregate
+     *
+     * Listener aggregates accept an EventManagerInterface instance, and call attach()
+     * one or more times, typically to attach to multiple events using local
+     * methods.
+     *
+     * @param  ListenerAggregateInterface $aggregate
+     * @param  int $priority If provided, a suggested priority for the aggregate to use
+     * @return mixed return value of {@link ListenerAggregateInterface::attach()}
+     */
+    public function attachAggregate(<Zephir\EventManager\ListenerAggregateInterface> aggregate, priority = 1)
+    {
+        return aggregate->attach(this, priority);
+    }
+
+    /**
+     * Unsubscribe a listener from an event
+     *
+     * @param  CallbackHandler|ListenerAggregateInterface $listener
+     * @return bool Returns true if event and listener found, and unsubscribed; returns false if either event or listener not found
+     * @throws Exception\InvalidArgumentException if invalid listener provided
+     */
+    public function detach(listener)
+    {
+        if listener instanceof Zephir\EventManager\ListenegerAggregateInterface {
+            return this->detatchAggregate(listener);
+        }
+
+        if listener instanceof Zend\Stdlib\CallbackHandler {
+            // todo: remove when zephirs supports not operator with instanceof
+        } else {
+
+            var received;
+            if is_object(listener) {
+                let received = get_class(listener);
+            } else {
+                let received = gettype(listener);
+            }
+
+            throw new Zephir\Eventmanager\Exception\InvalidArgumentException(sprintf(
+                "%s: expected a ListenerAggregateInterface or CallbackHandler; received \"%s\"",
+                "Zephir\EventManger\EventManager::detatch", listener
+            ));
+        }
+
+        var event;
+        let event = listener->getMetadatum('event');
+
+        if !event {
+            return false;
+        }
+
+        if empty(event) {
+            return false;
+        }
+
+        var ret;
+        let ret = this->getListeners(event);
+
+        if !ret->remove(listener) {
+            return false;
+        }
+
+        if !count(this->events(event)) {
+            var events;
+            let events = this->events;
+
+            unset events[event];
+        }
+
+        return true;
+    }
+
+    /**
+     * Detach a listener aggregate
+     *
+     * Listener aggregates accept an EventManagerInterface instance, and call detach()
+     * of all previously attached listeners.
+     *
+     * @param  ListenerAggregateInterface $aggregate
+     * @return mixed return value of {@link ListenerAggregateInterface::detach()}
+     */
+    public function detachAggregate(<Zephir\EventManager\ListenerAggregateInterface> aggregate)
+    {
+        return aggregate->detach(this);
+    }
+
+    /**
+     * Retrieve all registered events
+     *
+     * @return array
+     */
+    public function getEvents()
+    {
+        return array_keys(this->events);
+    }
+
+   /**
+     * Retrieve all listeners for a given event
+     *
+     * @param  string $event
+     * @return PriorityQueue
+     */
+    public function getListeners(string event)
+    {
+        if !array_key_exists(event, this->events) {
+            return new PriorityQueue();
+        }
+
+        var events;
+        let events = this->events;
+        return events;
+    }
+
+    /**
+     * Clear all listeners for a given event
+     *
+     * @param  string $event
+     * @return void
+     */
+    public function clearListeners(string event)
+    {
+        var events;
+        let events = this->events;
+
+        if !empty(events[event]) {
+            unset events[event];
+        }
+    }
+
+    /**
+     * Prepare arguments
+     *
+     * Use this method if you want to be able to modify arguments from within a
+     * listener. It returns an ArrayObject of the arguments, which may then be
+     * passed to trigger() or triggerUntil().
+     *
+     * @param  array $args
+     * @return ArrayObject
+     */
+    public function prepareArgs(args)
+    {
+        if typeof(args) != "array" {
+             trigger_error("First argument passed to prepareArgs must be of type array", E_USER_ERROR);
+        }
+
+        return new ArrayObject(args);
+    }
+
+    /**
+     * Trigger listeners
+     *
+     * Actual functionality for triggering listeners, to which both trigger() and triggerUntil()
+     * delegate.
+     *
+     * @param  string           $event Event name
+     * @param  EventInterface $e
+     * @param  null|callable    $callback
+     * @return ResponseCollection
+     */
     public function triggerListeners(event, <Zephir\EventManager\EventInterface> e, callback = null)
     {
         var responses, listeners, sharedListeners, sharedWildcardListeners, wildcardListeners;
@@ -202,9 +518,9 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
         let sharedWildcardListeners = this->getSharedListeners("*");
 
         let listeners = clone listeners;
-        listeners->insertListeners(listeners, sharedListeners);
-        listeners->insertListeners(listeners, wildcardListeners);
-        listeners->insertListeners(listeners, sharedWildcardListeners);
+        this->insertListeners(listeners, sharedListeners);
+        this->insertListeners(listeners, wildcardListeners);
+        this->insertListeners(listeners, sharedWildcardListeners);
 
         var listener, listenerCallback;
         for listener in listeners {
@@ -229,14 +545,14 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
         return responses;
     }
 
-    public function detach(listener)
-    {
-    }
 
-    public function getEvents()
-    {
-    }
-
+    /**
+     * Get list of all listeners attached to the shared event manager for
+     * identifiers registered by this instance
+     *
+     * @param  string $event
+     * @return array
+     */
     public function getSharedListeners(event)
     {
         if this->sharedManager === null {
@@ -286,23 +602,33 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
         return sharedListeners;
     }
 
-    public function getListeners(event)
+    /**
+     * Add listeners to the master queue of listeners
+     *
+     * Used to injected shared listeners and wildcard listeners.
+     *
+     * @param PriorityQueue masterListeners
+     * @param PriorityQueue listeners
+     *
+     * @return void
+     */
+    protected function insertListeners(<PriorityQueue> masterListeners, <PriorityQueue> listeners)
     {
-    }
+        var listener;
+        for listener in listeners {
 
-    public function clearListeners(event)
-    {
-    }
+            var priority;
+            let priority = listener->getMetadatum(priority);
 
-    public function setEventClass(eventClass)
-    {
-    }
+            if null === priority {
+                let priority = 1;
+            }
 
-    public function attachAggregate(agregate, priority = 1)
-    {
-    }
+            if is_array(priority) {
+                let priority = array_shift(priority);
+            }
 
-    public function detachAggregate(aggregate)
-    {
+            masterListeners->insert(listener, priority);
+        }
     }
 }
