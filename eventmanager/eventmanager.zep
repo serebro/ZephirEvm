@@ -94,7 +94,7 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
      *
      * @return false|SharedEventManagerInterface
      */
-    public function getSharedManager()
+    public function getSharedManager() -> <Zephir\EventManager\SharedEventManagerInterface>
     {
         if this->sharedManager === false {
             return false;
@@ -129,7 +129,7 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
      *
      * @return EventManager
      */
-    public function setIdentifiers(identifiers)
+    public function setIdentifiers(identifiers) -> <Zephir\EventManager\EventManager>
     {
         if identifiers === null {
              return;
@@ -155,7 +155,7 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
      *
      * @return EventManager
      */
-    public function addIdentifiers(identifiers)
+    public function addIdentifiers(identifiers) -> <Zephir\EventManager\Eventmanager>
     {
         if identifiers == null {
             return;
