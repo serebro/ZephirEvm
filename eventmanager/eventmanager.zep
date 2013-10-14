@@ -54,7 +54,7 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
      * @param string eventClass
      * @return EventManager
      */
-    public function setEventClass(string eventClass)
+    public function setEventClass(string eventClass) -> <Zephir\EventManager\EventManagerInterface>
     {
         let this->eventClass = eventClass;
         return this;
@@ -66,7 +66,7 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
      * @param SharedEventManagerInterface sharedEventManager
      * @return EventManager
      */
-    public function setSharedManager(<Zephir\EventManager\SharedEventManagerInterface> sharedEventManager)
+    public function setSharedManager(<Zephir\EventManager\SharedEventManagerInterface> sharedEventManager) -> <Zephir\EventManager\EventManagerInterface>
     {
         let this->sharedManager = sharedEventManager;
         Zephir\EventManager\StaticEventManager::setInstance(sharedEventManager);
@@ -78,7 +78,7 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
      *
      * @return void
      */
-    public function unsetSharedManager()
+    public function unsetSharedManager() -> void
     {
         let this->sharedManager = false;
     }
@@ -94,7 +94,7 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
      *
      * @return false|SharedEventManagerInterface
      */
-    public function getSharedManager() -> <Zephir\EventManager\SharedEventManagerInterface>
+    public function getSharedManager() -> <Zephir\EventManager\SharedEventManagerInterface> | boolean
     {
         if this->sharedManager === false {
             return false;
@@ -132,7 +132,7 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
     public function setIdentifiers(identifiers) -> <Zephir\EventManager\EventManager>
     {
         if identifiers === null {
-             return;
+             return this;
         }
 
         if identifiers instanceof Traversable {
@@ -158,7 +158,7 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
     public function addIdentifiers(identifiers) -> <Zephir\EventManager\Eventmanager>
     {
         if identifiers == null {
-            return;
+            return this;
         }
 
         if identifiers instanceof Traversable {
@@ -187,13 +187,15 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
      * @return ResponseCollection All listener return values
      * @throws Exception\InvalidCallbackException
      */
-    public function trigger(event, target = null, argv = null, callback = null)
+    public function trigger(event, target = null, argv = null, callback = null) -> <Zend\EventManager\ResponseCollection>
     {
         if argv === null {
             let argv = [];
         }
 
         var e;
+
+        var_dump(class_implements(event));
 
         if event instanceof Zephir\EventManger\EventInterface {
             let e        = event;
@@ -210,20 +212,15 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
                     e->setName(event);
                     e->setTarget(target);
                 } else {
-                    var className;
-                    let className = this->eventClass;
-
-                    let e = new className;
-                    e->setName(event);
-                    e->setTarget(target);
-                    e->setParams(argv);
+                    let e        = event;
+                                let event    = e->getName();
+                                let callback = target;
                 }
             }
         }
 
         if callback !== null {
             if !is_callable(callback) {
-                throw new Zephir\EventManager\Exception\InvalidCallbackException('Invalid callback provided');
             }
         }
 
@@ -281,7 +278,6 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
 
         if callback !== null {
             if !is_callable(callback) {
-                throw new Zephir\EventManager\Exception\InvalidCallbackException('Invalid callback provided');
             }
         }
 
@@ -452,7 +448,7 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
     public function getListeners(string event)
     {
         if !array_key_exists(event, this->events) {
-            return new PriorityQueue();
+            return new SplPriorityQueue();
         }
 
         var events;
@@ -506,11 +502,11 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
      * @param  null|callable    $callback
      * @return ResponseCollection
      */
-    public function triggerListeners(event, <Zephir\EventManager\EventInterface> e, callback = null)
+    public function triggerListeners(event, <Zephir\EventManager\EventInterface> e, callback = null) -> <Zend\EventManager\ResponseCollection>
     {
         var responses, listeners, sharedListeners, sharedWildcardListeners, wildcardListeners;
 
-        let responses = new Zephir\EventManager\ResponseCollection();
+        let responses = new Zend\EventManager\ResponseCollection();
         let listeners = this->getListeners(event);
 
         let sharedListeners         = this->getSharedListeners(event);
@@ -612,7 +608,7 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
      *
      * @return void
      */
-    protected function insertListeners(<PriorityQueue> masterListeners, <PriorityQueue> listeners)
+    protected function insertListeners(<SplPriorityQueue> masterListeners, <SplPriorityQueue> listeners)
     {
         var listener;
         for listener in listeners {
@@ -630,5 +626,5 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
 
             masterListeners->insert(listener, priority);
         }
-    }
+   }
 }
