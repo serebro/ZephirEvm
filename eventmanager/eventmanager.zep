@@ -43,7 +43,7 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
     public function __construct(identifiers = null)
     {
         let this->events = [];
-        let this->identifiers = [];
+        let this->identifiers = [];ac
 
         this->setIdentifiers(identifiers);
     }
@@ -195,8 +195,6 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
 
         var e;
 
-        var_dump(class_implements(event));
-
         if event instanceof Zephir\EventManger\EventInterface {
             let e        = event;
             let event    = e->getName();
@@ -278,6 +276,7 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
 
         if callback !== null {
             if !is_callable(callback) {
+
             }
         }
 
@@ -335,9 +334,8 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
 
         let events = this->events;
         let queue = events[event];
-        let listener = new Zend\Stdlib\CallbackHandler(callback, ["event":  event, "priority":  priority]);
 
-        queue->insert(listener, priority);
+        queue->insert(callback, priority);
     }
 
     /**
@@ -439,7 +437,7 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
         return array_keys(this->events);
     }
 
-   /**
+    /**
      * Retrieve all listeners for a given event
      *
      * @param  string $event
@@ -453,7 +451,7 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
 
         var events;
         let events = this->events;
-        return events;
+        return events[event];
     }
 
     /**
@@ -502,37 +500,36 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
      * @param  null|callable    $callback
      * @return ResponseCollection
      */
-    public function triggerListeners(event, <Zephir\EventManager\EventInterface> e, callback = null) -> <Zend\EventManager\ResponseCollection>
+    public function triggerListeners(event, <Zephir\EventManager\EventInterface> e, callback = null) -> <SplStack>
     {
         var responses, listeners, sharedListeners, sharedWildcardListeners, wildcardListeners;
 
-        let responses = new Zend\EventManager\ResponseCollection();
+        let responses = new SplStack();
         let listeners = this->getListeners(event);
 
         let sharedListeners         = this->getSharedListeners(event);
         let wildcardListeners       = this->getListeners("*");
         let sharedWildcardListeners = this->getSharedListeners("*");
 
-        let listeners = clone listeners;
         this->insertListeners(listeners, sharedListeners);
         this->insertListeners(listeners, wildcardListeners);
         this->insertListeners(listeners, sharedWildcardListeners);
 
         var listener, listenerCallback;
-        for listener in listeners {
+        for listener in iterator_to_array(listeners) {
 
-            let listenerCallback = listener->getCallback();
+            let listenerCallback = listener;
 
             responses->push(call_user_func(listenerCallback, e));
 
             if e->propagationIsStopped() {
-                responses->setStopped(true);
+                //responses->setStopped(true);
                 break;
             }
 
             if callback {
-                 if call_user_func(callback, responses->last()) {
-                     responses->setStopped(true);
+                 if call_user_func(callback, responses->top()) {
+                     //responses->setStopped(true);
                      break;
                  }
             }
@@ -564,6 +561,8 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
         if !in_array("*", identifiers) {
             let identifiers[] = "*";
         }
+
+        var_dump(identifiers);
 
         var id;
         for id in identifiers {
@@ -608,11 +607,15 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
      *
      * @return void
      */
-    protected function insertListeners(<SplPriorityQueue> masterListeners, <SplPriorityQueue> listeners)
+    protected function insertListeners(<Zend\Stdlib\PriorityQueue> masterListeners, <Zend\Stdlib\PriorityQueue> listeners)
     {
+        if listeners instanceof SplPriorityQueue {
+            let listeners = iterator_to_array(listeners);
+        }
+
         var listener;
         for listener in listeners {
-
+/*
             var priority;
             let priority = listener->getMetadatum("priority");
 
@@ -623,8 +626,8 @@ class EventManager implements Zephir\EventManager\EventManagerInterface
             if is_array(priority) {
                 let priority = array_shift(priority);
             }
-
-            masterListeners->insert(listener, priority);
+*/
+            masterListeners->insert(listener, 1);
         }
-   }
+    }
 }
