@@ -43,7 +43,7 @@ class SharedEventManager implements Zephir\EventManager\SharedEventAggregateAwar
         return listeners[0];
     }
 
-    public function attachAggregate(<Zephir\EventManager\SharedListenerAggregateInterface> aggregate, priority)
+    public function attachAggregate(<Zephir\EventManager\SharedListenerAggregateInterface> aggregate, int priority = 1)
     {
         return aggregate->attachShared(this, priority);
     }
@@ -62,7 +62,7 @@ class SharedEventManager implements Zephir\EventManager\SharedEventAggregateAwar
         return evm->detach(listener);
     }
 
-    public function detatchAggregate(<Zephir\EventManager\SharedListenerAggregateInterface> aggregate)
+    public function detachAggregate(<Zephir\EventManager\SharedListenerAggregateInterface> aggregate)
     {
         return aggregate->detachShared(this);
     }

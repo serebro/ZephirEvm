@@ -1,5 +1,3 @@
-//<?php
-
 namespace Zephir\EventManager;
 
 interface SharedEventManagerAwareInterface
