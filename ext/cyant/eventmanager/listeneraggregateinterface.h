@@ -1,0 +1,18 @@
+
+extern zend_class_entry *cyant_eventmanager_listeneraggregateinterface_ce;
+
+ZEPHIR_INIT_CLASS(Cyant_EventManager_ListenerAggregateInterface);
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_cyant_eventmanager_listeneraggregateinterface_attach, 0, 0, 1)
+	ZEND_ARG_INFO(0, events)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_cyant_eventmanager_listeneraggregateinterface_detach, 0, 0, 1)
+	ZEND_ARG_INFO(0, events)
+ZEND_END_ARG_INFO()
+
+ZEPHIR_INIT_FUNCS(cyant_eventmanager_listeneraggregateinterface_method_entry) {
+	PHP_ABSTRACT_ME(Cyant_EventManager_ListenerAggregateInterface, attach, arginfo_cyant_eventmanager_listeneraggregateinterface_attach)
+	PHP_ABSTRACT_ME(Cyant_EventManager_ListenerAggregateInterface, detach, arginfo_cyant_eventmanager_listeneraggregateinterface_detach)
+	PHP_FE_END
+};
