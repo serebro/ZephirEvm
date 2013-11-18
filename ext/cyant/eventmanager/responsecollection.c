@@ -58,7 +58,7 @@ PHP_METHOD(Cyant_EventManager_ResponseCollection, __construct) {
 	ZEPHIR_MM_GROW();
 	zephir_fetch_params(1, 0, 1, &responses);
 
-	if (!responses) {
+	if (!responses || Z_TYPE_P(responses) == IS_NULL) {
 		ZEPHIR_CPY_WRT(responses, ZEPHIR_GLOBAL(global_null));
 	}
 	ZEPHIR_SEPARATE_PARAM(responses);

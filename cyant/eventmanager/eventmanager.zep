@@ -38,6 +38,11 @@ class EventManager implements Cyant\EventManager\EventManagerInterface
     protected sharedManager = null;
 
     /**
+     * @var boolean
+     */
+    protected orderedByPriority = true;
+
+    /**
      * Constructor
      *
      * Allows optionally specifying identifier(s) to use to pull signals from a
@@ -69,7 +74,7 @@ class EventManager implements Cyant\EventManager\EventManagerInterface
      *
      * @return SharedEventManagerInterface|null
      */
-    public function getSharedManager()
+    public function getSharedManager() -> <Cyant\EventManager\SharedManagerInterface>
     {
         return this->sharedManager;
     }
@@ -104,6 +109,8 @@ class EventManager implements Cyant\EventManager\EventManagerInterface
         }
 
         array_push(this->events[event][priority . ".0"], listener);
+        let this->orderedByPriority = false;
+
         return listener;
     }
 
@@ -133,7 +140,7 @@ class EventManager implements Cyant\EventManager\EventManagerInterface
      * @param  string   eventName
      * @return bool Returns true if event and listener found, and unsubscribed; returns false if either event or listener not found
      */
-    public function detach(listener, eventName = null)
+    public function detach(listener, string eventName = null)
     {
         var index, listeners, key;
 
@@ -187,34 +194,29 @@ class EventManager implements Cyant\EventManager\EventManagerInterface
      * @param  callable|null       callback
      * @return ResponseCollection All listener return values
      */
-    public function trigger(string eventName, <Cyant\EventManager\EventInterface> event = null, var callback = null)
+    public function trigger(string eventName, <Cyant\EventManager\EventInterface> event = null, var callback = null) -> <Cyant\EventManager\ResponseCollection>
     {
         // Initial value of stop propagation flag should be false
         if (event == null) {
             let event = new Cyant\EventManager\Event();
         }
+
         event->stopPropagation(false);
 
         var responses, listeners;
-        let responses = [];
 
-        // We cannot use union (+) operator as it merges numeric indexed keys
-        let listeners = array_merge_recursive(
-            this->getListeners(eventName),
-            this->getListeners("*"),
-            this->getSharedListeners(eventName),
-            this->getSharedListeners("*")
-        );
+        let responses = [];
+        let listeners = this->getListeners(eventName);
+
 
         var lastResponse, listenersByPriority, listener;
-
         for listenersByPriority in listeners {
             for listener in listenersByPriority {
 
                 let lastResponse = call_user_func(listener, event);
-                let responses[] = lastResponse;
+                let responses[]  = lastResponse;
 
-                if (event->isPropagationStopped() || ({callback}() && {callback}(lastResponse)) ) {
+                if (event->isPropagationStopped() || (callback && {callback}(lastResponse)) ) {
 
                     var responseCollection;
                     let responseCollection = new Cyant\EventManager\ResponseCollection(responses);
@@ -241,11 +243,63 @@ class EventManager implements Cyant\EventManager\EventManagerInterface
      */
     public function getListeners(eventName)
     {
-        if isset this->events[eventName] {
-            return this->events[eventName];
+        var listeners, wildcardListeners, sharedListeners;
+        let listeners = [], wildcardListeners = [], sharedListeners = [];
+
+        // pre-order all listeners by priority
+        if (!this->orderedByPriority) {
+
+            var name, listenersByPriority;
+            for name, listenersByPriority in this->events {
+                krsort(this->events[name], SORT_NUMERIC);
+            }
+        
+            let this->orderedByPriority = true;
         }
 
-        return [];
+        int mergeCount = 0;
+
+        // retrieve listeners
+        if isset this->events[eventName] {
+
+            let listeners = this->events[eventName];
+            if (listeners) {
+                let mergeCount++;
+            }
+        }
+        
+        if isset this->events["*"] {
+
+            let wildcardListeners = this->events["*"];
+            if (wildcardListeners) {
+                let mergeCount++;
+            }
+        }
+
+
+        if this->sharedManager !== null {
+
+            let sharedListeners = this->sharedManager->getListeners(this->identifiers, eventName);
+            if sharedListeners {
+                let mergeCount++;
+            }
+        }
+        
+        // merge
+        if (mergeCount > 1) {
+            let listeners = array_merge_recursive(listeners, wildcardListeners, sharedListeners);
+            krsort(listeners, SORT_NUMERIC);
+        } else {
+            if wildcardListeners {
+                let listeners = wildcardListeners;
+            } else {
+                 if sharedListeners {
+                    let listeners = sharedListeners;
+                 }
+            }
+        }
+        
+        return listeners; 
     }
 
     /**
@@ -301,29 +355,5 @@ class EventManager implements Cyant\EventManager\EventManagerInterface
     public function prepareArgs(args)
     {
         return new ArrayObject(args);
-    }
-
-    /**
-     * Get list of all listeners attached to the shared event manager for
-     * identifiers registered by this instance
-     *
-     * @param  string eventName
-     * @return array
-     */
-    protected function getSharedListeners(eventName)
-    {
-        if (this->sharedManager == null) {
-            return [];
-        }
-
-        var identifiers;
-        let identifiers = this->identifiers;
-
-        // Add wildcard id to the search, if not already added
-        if (!in_array("*", identifiers, true)) {
-            let identifiers[] = "*";
-        }
-
-        return this->sharedManager->getListeners(identifiers, eventName);
     }
 }

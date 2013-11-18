@@ -18,7 +18,6 @@ PHP_METHOD(Cyant_EventManager_EventManager, setIdentifiers);
 PHP_METHOD(Cyant_EventManager_EventManager, addIdentifiers);
 PHP_METHOD(Cyant_EventManager_EventManager, getIdentifiers);
 PHP_METHOD(Cyant_EventManager_EventManager, prepareArgs);
-PHP_METHOD(Cyant_EventManager_EventManager, getSharedListeners);
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_cyant_eventmanager_eventmanager___construct, 0, 0, 0)
 	ZEND_ARG_INFO(0, identifiers)
@@ -74,10 +73,6 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_cyant_eventmanager_eventmanager_prepareargs, 0, 0
 	ZEND_ARG_INFO(0, args)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_cyant_eventmanager_eventmanager_getsharedlisteners, 0, 0, 1)
-	ZEND_ARG_INFO(0, eventName)
-ZEND_END_ARG_INFO()
-
 ZEPHIR_INIT_FUNCS(cyant_eventmanager_eventmanager_method_entry) {
 	PHP_ME(Cyant_EventManager_EventManager, __construct, arginfo_cyant_eventmanager_eventmanager___construct, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
 	PHP_ME(Cyant_EventManager_EventManager, setSharedManager, arginfo_cyant_eventmanager_eventmanager_setsharedmanager, ZEND_ACC_PUBLIC)
@@ -94,6 +89,5 @@ ZEPHIR_INIT_FUNCS(cyant_eventmanager_eventmanager_method_entry) {
 	PHP_ME(Cyant_EventManager_EventManager, addIdentifiers, arginfo_cyant_eventmanager_eventmanager_addidentifiers, ZEND_ACC_PUBLIC)
 	PHP_ME(Cyant_EventManager_EventManager, getIdentifiers, NULL, ZEND_ACC_PUBLIC)
 	PHP_ME(Cyant_EventManager_EventManager, prepareArgs, arginfo_cyant_eventmanager_eventmanager_prepareargs, ZEND_ACC_PUBLIC)
-	PHP_ME(Cyant_EventManager_EventManager, getSharedListeners, arginfo_cyant_eventmanager_eventmanager_getsharedlisteners, ZEND_ACC_PROTECTED)
 	PHP_FE_END
 };

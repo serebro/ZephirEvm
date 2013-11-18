@@ -8,6 +8,9 @@
 #include "cyant/eventmanager/eventmanagerinterface.h"
 #include "cyant/eventmanager/listeneraggregateinterface.h"
 #include "cyant/eventmanager/responsecollection.h"
+#include "cyant/eventmanager/sharedeventmanager.h"
 #include "cyant/eventmanager/sharedeventmanagerawareinterface.h"
+#include "cyant/eventmanager/sharedeventmanagerinterface.h"
+#include "cyant/eventmanager/sharedlisteneraggregateinterface.h"
 
 #endif

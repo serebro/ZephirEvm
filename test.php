@@ -5,9 +5,20 @@
  * @copyright PMG Media Group AB
  */
 
-$test = function () {
-    return 'test';
-};
+function test()
+{
+//    echo 'test';
+}
+
+class Foo
+{
+    function bar()
+    {
+        return 'baz';
+    }
+}
+
+$cls = new Foo;
 
 $numberOfListeners = 100;
 $numberOfTriggers  = 1000;
@@ -19,7 +30,7 @@ echo "Attach {$numberOfListeners} listeners:        ";
 $memStart  = memory_get_usage();
 $timeStart = microtime(true);
 for ($i = 0; $i < $numberOfListeners; ++$i) {
-    $eventManager->attach('event', $test, $i);
+    $eventManager->attach('event', [$cls, 'bar'], $i);
 }
 $timeEnd = microtime(true);
 $memEnd  = memory_get_usage(true);

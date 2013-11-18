@@ -20,9 +20,12 @@ zend_class_entry *cyant_eventmanager_sharedeventmanagerawareinterface_ce;
 zend_class_entry *cyant_eventmanager_eventinterface_ce;
 zend_class_entry *cyant_eventmanager_eventmanagerinterface_ce;
 zend_class_entry *cyant_eventmanager_listeneraggregateinterface_ce;
+zend_class_entry *cyant_eventmanager_sharedeventmanagerinterface_ce;
+zend_class_entry *cyant_eventmanager_sharedlisteneraggregateinterface_ce;
 zend_class_entry *cyant_eventmanager_event_ce;
 zend_class_entry *cyant_eventmanager_eventmanager_ce;
 zend_class_entry *cyant_eventmanager_responsecollection_ce;
+zend_class_entry *cyant_eventmanager_sharedeventmanager_ce;
 
 ZEND_DECLARE_MODULE_GLOBALS(cyant)
 
@@ -32,9 +35,12 @@ PHP_MINIT_FUNCTION(cyant){
 	ZEPHIR_INIT(Cyant_EventManager_EventInterface);
 	ZEPHIR_INIT(Cyant_EventManager_EventManagerInterface);
 	ZEPHIR_INIT(Cyant_EventManager_ListenerAggregateInterface);
+	ZEPHIR_INIT(Cyant_EventManager_SharedEventManagerInterface);
+	ZEPHIR_INIT(Cyant_EventManager_SharedListenerAggregateInterface);
 	ZEPHIR_INIT(Cyant_EventManager_Event);
 	ZEPHIR_INIT(Cyant_EventManager_EventManager);
 	ZEPHIR_INIT(Cyant_EventManager_ResponseCollection);
+	ZEPHIR_INIT(Cyant_EventManager_SharedEventManager);
 	return SUCCESS;
 }
 

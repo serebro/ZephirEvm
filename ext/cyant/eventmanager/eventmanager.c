@@ -56,6 +56,10 @@ ZEPHIR_INIT_CLASS(Cyant_EventManager_EventManager) {
      * @var null|SharedEventManagerInterface
      */
 	zend_declare_property_null(cyant_eventmanager_eventmanager_ce, SL("sharedManager"), ZEND_ACC_PROTECTED TSRMLS_CC);
+/**
+     * @var boolean
+     */
+	zend_declare_property_bool(cyant_eventmanager_eventmanager_ce, SL("orderedByPriority"), 1, ZEND_ACC_PROTECTED TSRMLS_CC);
 
 	zend_class_implements(cyant_eventmanager_eventmanager_ce TSRMLS_CC, 1, cyant_eventmanager_eventmanagerinterface_ce);
 
@@ -78,7 +82,7 @@ PHP_METHOD(Cyant_EventManager_EventManager, __construct) {
 	ZEPHIR_MM_GROW();
 	zephir_fetch_params(1, 0, 1, &identifiers);
 
-	if (!identifiers) {
+	if (!identifiers || Z_TYPE_P(identifiers) == IS_NULL) {
 		identifiers = ZEPHIR_GLOBAL(global_null);
 	}
 
@@ -153,7 +157,7 @@ PHP_METHOD(Cyant_EventManager_EventManager, attach) {
 	zephir_fetch_params(1, 2, 1, &event_param, &listener, &priority_param);
 
 		zephir_get_strval(event, event_param);
-	if (!priority_param) {
+	if (!priority_param || Z_TYPE_P(priority_param) == IS_NULL) {
 		priority = 1;	} else {
 		priority = zephir_get_intval(priority_param);
 	}
@@ -190,6 +194,7 @@ PHP_METHOD(Cyant_EventManager_EventManager, attach) {
 	zephir_array_fetch(&_10, _9, _8, PH_NOISY | PH_READONLY TSRMLS_CC);
 	Z_SET_ISREF_P(_10);
 	zephir_call_func_p2_noret("array_push", _10, listener);
+	zephir_update_property_this(this_ptr, SL("orderedByPriority"), (0) ? ZEPHIR_GLOBAL(global_true) : ZEPHIR_GLOBAL(global_false) TSRMLS_CC);
 	RETURN_CCTOR(listener);
 
 }
@@ -212,7 +217,7 @@ PHP_METHOD(Cyant_EventManager_EventManager, attachAggregate) {
 	ZEPHIR_MM_GROW();
 	zephir_fetch_params(1, 1, 1, &aggregate, &priority);
 
-	if (!priority) {
+	if (!priority || Z_TYPE_P(priority) == IS_NULL) {
 		ZEPHIR_INIT_VAR(priority);
 		ZVAL_LONG(priority, 1);
 	}
@@ -237,14 +242,18 @@ PHP_METHOD(Cyant_EventManager_EventManager, detach) {
 
 	HashTable *_3, *_6, *_9;
 	HashPosition _2, _5, _8;
-	zval *listener = NULL, *eventName = NULL, *index = NULL, *listeners = NULL, *key = NULL, *_0, *_1, **_4, *event = NULL, **_7, **_10;
+	zval *eventName = NULL;
+	zval *listener = NULL, *eventName_param = NULL, *index = NULL, *listeners = NULL, *key = NULL, *_0, *_1, **_4, *event = NULL, **_7, **_10;
 
 	ZEPHIR_MM_GROW();
-	zephir_fetch_params(1, 1, 1, &listener, &eventName);
+	zephir_fetch_params(1, 1, 1, &listener, &eventName_param);
 
 	ZEPHIR_SEPARATE_PARAM(listener);
-	if (!eventName) {
-		eventName = ZEPHIR_GLOBAL(global_null);
+	if (!eventName_param || Z_TYPE_P(eventName_param) == IS_NULL) {
+		ZEPHIR_INIT_VAR(eventName);
+		ZVAL_EMPTY_STRING(eventName);
+	} else {
+		zephir_get_strval(eventName, eventName_param);
 	}
 
 
@@ -323,21 +332,21 @@ PHP_METHOD(Cyant_EventManager_EventManager, detachAggregate) {
  */
 PHP_METHOD(Cyant_EventManager_EventManager, trigger) {
 
-	zend_function *_11 = NULL, *_16 = NULL, *_17 = NULL;
-	HashTable *_6, *_9;
-	HashPosition _5, _8;
-	zval *eventName_param = NULL, *event = NULL, *callback = NULL, *responses, *listeners, *_0, *_1, *_2, *_3, *_4 = NULL, *lastResponse = NULL, *listenersByPriority = NULL, *listener = NULL, **_7, **_10, *_12 = NULL, *_13 = NULL, *_14 = NULL, _15 = zval_used_for_init, *responseCollection = NULL;
+	zend_function *_7 = NULL, *_11 = NULL, *_12 = NULL;
+	HashTable *_1, *_4;
+	HashPosition _0, _3;
+	zval *eventName_param = NULL, *event = NULL, *callback = NULL, *responses, *listeners, *lastResponse = NULL, *listenersByPriority = NULL, *listener = NULL, **_2, **_5, *_6 = NULL, *_8 = NULL, *_9 = NULL, _10 = zval_used_for_init, *responseCollection = NULL;
 	zval *eventName = NULL;
 
 	ZEPHIR_MM_GROW();
 	zephir_fetch_params(1, 1, 2, &eventName_param, &event, &callback);
 
 		zephir_get_strval(eventName, eventName_param);
-	if (!event) {
+	if (!event || Z_TYPE_P(event) == IS_NULL) {
 		ZEPHIR_CPY_WRT(event, ZEPHIR_GLOBAL(global_null));
 	}
 	ZEPHIR_SEPARATE_PARAM(event);
-	if (!callback) {
+	if (!callback || Z_TYPE_P(callback) == IS_NULL) {
 		callback = ZEPHIR_GLOBAL(global_null);
 	}
 
@@ -350,48 +359,35 @@ PHP_METHOD(Cyant_EventManager_EventManager, trigger) {
 	zephir_call_method_p1_noret(event, "stoppropagation", ZEPHIR_GLOBAL(global_false));
 	ZEPHIR_INIT_VAR(responses);
 	array_init(responses);
-	ZEPHIR_INIT_VAR(_0);
-	zephir_call_method_p1(_0, this_ptr, "getlisteners", eventName);
-	ZEPHIR_INIT_VAR(_1);
-	ZEPHIR_INIT_VAR(_2);
-	ZVAL_STRING(_2, "*", 1);
-	zephir_call_method_p1(_1, this_ptr, "getlisteners", _2);
-	ZEPHIR_INIT_BNVAR(_2);
-	zephir_call_method_p1(_2, this_ptr, "getsharedlisteners", eventName);
-	ZEPHIR_INIT_VAR(_3);
-	ZEPHIR_INIT_VAR(_4);
-	ZVAL_STRING(_4, "*", 1);
-	zephir_call_method_p1(_3, this_ptr, "getsharedlisteners", _4);
 	ZEPHIR_INIT_VAR(listeners);
-	zephir_call_func_p4(listeners, "array_merge_recursive", _0, _1, _2, _3);
-	zephir_is_iterable(listeners, &_6, &_5, 0, 0);
+	zephir_call_method_p1(listeners, this_ptr, "getlisteners", eventName);
+	zephir_is_iterable(listeners, &_1, &_0, 0, 0);
 	for (
-		; zend_hash_get_current_data_ex(_6, (void**) &_7, &_5) == SUCCESS
-		; zend_hash_move_forward_ex(_6, &_5)
+		; zend_hash_get_current_data_ex(_1, (void**) &_2, &_0) == SUCCESS
+		; zend_hash_move_forward_ex(_1, &_0)
 	) {
-		ZEPHIR_GET_HVALUE(listenersByPriority, _7);
-		zephir_is_iterable(listenersByPriority, &_9, &_8, 0, 0);
+		ZEPHIR_GET_HVALUE(listenersByPriority, _2);
+		zephir_is_iterable(listenersByPriority, &_4, &_3, 0, 0);
 		for (
-			; zend_hash_get_current_data_ex(_9, (void**) &_10, &_8) == SUCCESS
-			; zend_hash_move_forward_ex(_9, &_8)
+			; zend_hash_get_current_data_ex(_4, (void**) &_5, &_3) == SUCCESS
+			; zend_hash_move_forward_ex(_4, &_3)
 		) {
-			ZEPHIR_GET_HVALUE(listener, _10);
+			ZEPHIR_GET_HVALUE(listener, _5);
 			ZEPHIR_INIT_NVAR(lastResponse);
 			zephir_call_func_p2(lastResponse, "call_user_func", listener, event);
 			zephir_array_append(&responses, lastResponse, PH_SEPARATE);
-			ZEPHIR_INIT_NVAR(_4);
-			zephir_call_method_cache(_4, event, "ispropagationstopped", &_11);
-			ZEPHIR_INIT_NVAR(_12);
-			ZEPHIR_INIT_NVAR(_13);
-			ZEPHIR_INIT_LNVAR(_14);
-			zephir_add_function(_14, _12, _13 TSRMLS_CC);
-			ZEPHIR_SINIT_NVAR(_15);
-			zephir_add_function(&_15, _4, _14 TSRMLS_CC);
-			if (zephir_is_true(&_15)) {
+			ZEPHIR_INIT_NVAR(_6);
+			zephir_call_method_cache(_6, event, "ispropagationstopped", &_7);
+			ZEPHIR_INIT_NVAR(_8);
+			ZEPHIR_INIT_LNVAR(_9);
+			zephir_add_function(_9, callback, _8 TSRMLS_CC);
+			ZEPHIR_SINIT_NVAR(_10);
+			zephir_add_function(&_10, _6, _9 TSRMLS_CC);
+			if (zephir_is_true(&_10)) {
 				ZEPHIR_INIT_NVAR(responseCollection);
 				object_init_ex(responseCollection, cyant_eventmanager_responsecollection_ce);
-				zephir_call_method_p1_cache_noret(responseCollection, "__construct", &_16, responses);
-				zephir_call_method_p1_cache_noret(responseCollection, "setstopped", &_17, ZEPHIR_GLOBAL(global_true));
+				zephir_call_method_p1_cache_noret(responseCollection, "__construct", &_11, responses);
+				zephir_call_method_p1_cache_noret(responseCollection, "setstopped", &_12, ZEPHIR_GLOBAL(global_true));
 				RETURN_CCTOR(responseCollection);
 			}
 		}
@@ -422,20 +418,87 @@ PHP_METHOD(Cyant_EventManager_EventManager, getEventNames) {
  */
 PHP_METHOD(Cyant_EventManager_EventManager, getListeners) {
 
-	zval *eventName, *_0, *_1, *_2;
+	int mergeCount = 0;
+	HashTable *_3;
+	HashPosition _2;
+	zval *eventName, *listeners = NULL, *wildcardListeners = NULL, *sharedListeners, *_0, *name = NULL, *listenersByPriority = NULL, *_1, **_4, *_5, *_6, *_7 = NULL;
 
-	zephir_fetch_params(0, 1, 0, &eventName);
+	ZEPHIR_MM_GROW();
+	zephir_fetch_params(1, 1, 0, &eventName);
 
 
 
-	_0 = zephir_fetch_nproperty_this(this_ptr, SL("events"), PH_NOISY_CC);
-	if (zephir_array_isset(_0, eventName)) {
+	ZEPHIR_INIT_VAR(listeners);
+	array_init(listeners);
+	ZEPHIR_INIT_VAR(wildcardListeners);
+	array_init(wildcardListeners);
+	ZEPHIR_INIT_VAR(sharedListeners);
+	array_init(sharedListeners);
+	_0 = zephir_fetch_nproperty_this(this_ptr, SL("orderedByPriority"), PH_NOISY_CC);
+	if (!zephir_is_true(_0)) {
 		_1 = zephir_fetch_nproperty_this(this_ptr, SL("events"), PH_NOISY_CC);
-		zephir_array_fetch(&_2, _1, eventName, PH_NOISY | PH_READONLY TSRMLS_CC);
-		RETURN_CTORW(_2);
+		zephir_is_iterable(_1, &_3, &_2, 0, 0);
+		for (
+			; zend_hash_get_current_data_ex(_3, (void**) &_4, &_2) == SUCCESS
+			; zend_hash_move_forward_ex(_3, &_2)
+		) {
+			ZEPHIR_GET_HMKEY(name, _3, _2);
+			ZEPHIR_GET_HVALUE(listenersByPriority, _4);
+			_5 = zephir_fetch_nproperty_this(this_ptr, SL("events"), PH_NOISY_CC);
+			zephir_array_fetch(&_6, _5, name, PH_NOISY | PH_READONLY TSRMLS_CC);
+			ZEPHIR_INIT_NVAR(_7);
+			ZVAL_LONG(_7, 1);
+			Z_SET_ISREF_P(_6);
+			zephir_call_func_p2_noret("krsort", _6, _7);
+		}
+		zephir_update_property_this(this_ptr, SL("orderedByPriority"), (1) ? ZEPHIR_GLOBAL(global_true) : ZEPHIR_GLOBAL(global_false) TSRMLS_CC);
 	}
-	array_init(return_value);
-	return;
+	_1 = zephir_fetch_nproperty_this(this_ptr, SL("events"), PH_NOISY_CC);
+	if (zephir_array_isset(_1, eventName)) {
+		_5 = zephir_fetch_nproperty_this(this_ptr, SL("events"), PH_NOISY_CC);
+		ZEPHIR_OBS_NVAR(listeners);
+		zephir_array_fetch(&listeners, _5, eventName, PH_NOISY TSRMLS_CC);
+		if (zephir_is_true(listeners)) {
+			mergeCount++;
+		}
+	}
+	_1 = zephir_fetch_nproperty_this(this_ptr, SL("events"), PH_NOISY_CC);
+	if (zephir_array_isset_string(_1, SS("*"))) {
+		_5 = zephir_fetch_nproperty_this(this_ptr, SL("events"), PH_NOISY_CC);
+		ZEPHIR_OBS_NVAR(wildcardListeners);
+		zephir_array_fetch_string(&wildcardListeners, _5, SL("*"), PH_NOISY TSRMLS_CC);
+		if (zephir_is_true(wildcardListeners)) {
+			mergeCount++;
+		}
+	}
+	_1 = zephir_fetch_nproperty_this(this_ptr, SL("sharedManager"), PH_NOISY_CC);
+	if ((Z_TYPE_P(_1) != IS_NULL)) {
+		_5 = zephir_fetch_nproperty_this(this_ptr, SL("sharedManager"), PH_NOISY_CC);
+		_6 = zephir_fetch_nproperty_this(this_ptr, SL("identifiers"), PH_NOISY_CC);
+		ZEPHIR_INIT_BNVAR(sharedListeners);
+		zephir_call_method_p2(sharedListeners, _5, "getlisteners", _6, eventName);
+		if (zephir_is_true(sharedListeners)) {
+			mergeCount++;
+		}
+	}
+	if ((mergeCount > 1)) {
+		ZEPHIR_INIT_NVAR(_7);
+		zephir_call_func_p3(_7, "array_merge_recursive", listeners, wildcardListeners, sharedListeners);
+		ZEPHIR_CPY_WRT(listeners, _7);
+		ZEPHIR_INIT_NVAR(_7);
+		ZVAL_LONG(_7, 1);
+		Z_SET_ISREF_P(listeners);
+		zephir_call_func_p2_noret("krsort", listeners, _7);
+	} else {
+		if (zephir_is_true(wildcardListeners)) {
+			ZEPHIR_CPY_WRT(listeners, wildcardListeners);
+		} else {
+			if (zephir_is_true(sharedListeners)) {
+				ZEPHIR_CPY_WRT(listeners, sharedListeners);
+			}
+		}
+	}
+	RETURN_CCTOR(listeners);
 
 }
 
@@ -537,44 +600,6 @@ PHP_METHOD(Cyant_EventManager_EventManager, prepareArgs) {
 	_0 = zend_fetch_class(SL("ArrayObject"), ZEND_FETCH_CLASS_AUTO TSRMLS_CC);
 	object_init_ex(return_value, _0);
 	zephir_call_method_p1_noret(return_value, "__construct", args);
-	RETURN_MM();
-
-}
-
-/**
- * Get list of all listeners attached to the shared event manager for
- * identifiers registered by this instance
- *
- * @param  string eventName
- * @return array
- */
-PHP_METHOD(Cyant_EventManager_EventManager, getSharedListeners) {
-
-	zval *eventName, *_0, *identifiers, _1, *_2, *_3, *_4;
-
-	ZEPHIR_MM_GROW();
-	zephir_fetch_params(1, 1, 0, &eventName);
-
-
-
-	_0 = zephir_fetch_nproperty_this(this_ptr, SL("sharedManager"), PH_NOISY_CC);
-	if ((Z_TYPE_P(_0) == IS_NULL)) {
-		array_init(return_value);
-		RETURN_MM();
-	}
-	ZEPHIR_OBS_VAR(identifiers);
-	zephir_read_property_this(&identifiers, this_ptr, SL("identifiers"), PH_NOISY_CC);
-	ZEPHIR_SINIT_VAR(_1);
-	ZVAL_STRING(&_1, "*", 0);
-	ZEPHIR_INIT_VAR(_2);
-	zephir_call_func_p3(_2, "in_array", &_1, identifiers, ZEPHIR_GLOBAL(global_true));
-	if (!zephir_is_true(_2)) {
-		ZEPHIR_INIT_VAR(_3);
-		ZVAL_STRING(_3, "*", 1);
-		zephir_array_append(&identifiers, _3, PH_SEPARATE);
-	}
-	_4 = zephir_fetch_nproperty_this(this_ptr, SL("sharedManager"), PH_NOISY_CC);
-	zephir_call_method_p2(return_value, _4, "getlisteners", identifiers, eventName);
 	RETURN_MM();
 
 }
