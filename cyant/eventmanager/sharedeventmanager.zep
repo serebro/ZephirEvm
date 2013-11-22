@@ -103,16 +103,19 @@ class SharedEventManager implements Cyant\EventManager\SharedEventManagerInterfa
     public function detach(identifier, var listener)
     {
         if isset this->identifiers[identifier] {
-        /*
-            foreach (this->identifiers[identifier] as &event) {
-                foreach (event as &listeners) {
-                    if ((key = array_search(listener, listeners, true)) !== false) {
+
+            var key, event, listeners;
+
+            for event in this->identifiers[identifier] {
+                for listeners in event {
+
+                    let key = array_search(listener, listeners, true) !== false;
+                    if key {
                         unset(listeners[key]);
                         return true;
                     }
                 }
             }
-            */
         }
 
         return false;
@@ -141,33 +144,33 @@ class SharedEventManager implements Cyant\EventManager\SharedEventManagerInterfa
      */
     public function getListeners(identifiers, eventName)
     {
-        /*
         var listeners, identifier;
         let listeners = [];
 
-
-        for identifer in identifiers {
-            if (isset(this->identifiers[identifier][eventName])) {
+        for identifier in identifiers {
+            if isset this->identifiers[identifier][eventName] {
                 let listeners = array_merge(listeners, this->identifiers[identifier][eventName]);
             }
 
-            if (isset(this->identifiers[identifier]["*"])) {
+            if isset this->identifiers[identifier]["*"] {
                 let listeners = array_merge(listeners, this->identifiers[identifier]["*"]);
             }
         }
 
-        if (isset(this->identifiers["*"]) && !in_array("*", identifiers, true)) {
-            if (isset(this->identifiers["*"][eventName])) {
-                let listeners = array_merge(listeners, this->identifiers["*"][eventName]);
-            }
+        if  isset this->identifiers["*"] {
+            if !in_array("*", identifiers, true) {
 
-            if (isset(this->identifiers["*"]["*"])) {
-                let listeners = array_merge(listeners, this->identifiers["*"]["*"]);
+                if isset this->identifiers["*"][eventName] {
+                    let listeners = array_merge(listeners, this->identifiers["*"][eventName]);
+                }
+
+                if isset this->identifiers["*"]["*"] {
+                    let listeners = array_merge(listeners, this->identifiers["*"]["*"]);
+                }
             }
         }
 
         return listeners;
-        */
     }
 
     /**

@@ -64,7 +64,7 @@ class EventManager implements Cyant\EventManager\EventManagerInterface
      * @param  SharedEventManagerInterface sharedEventManager
      * @return void
      */
-    public function setSharedManager(<Cyant\EventManager\SharedEventManagerInterface> sharedEventManager)
+    public function setSharedManager(<Cyant\EventManager\SharedEventManagerInterface> sharedEventManager) -> void
     {
         let this->sharedManager = sharedEventManager;
     }
@@ -98,7 +98,7 @@ class EventManager implements Cyant\EventManager\EventManagerInterface
      * @return if attaching (to allow later unsubscribe)
      * @throws Exception\InvalidArgumentException
      */
-    public function attach(string event, listener, int priority = 1)
+    public function attach(string event, var listener, int priority = 1)
     {
         if !isset this->events[event] {
             let this->events[event] = [];
@@ -140,7 +140,7 @@ class EventManager implements Cyant\EventManager\EventManagerInterface
      * @param  string   eventName
      * @return bool Returns true if event and listener found, and unsubscribed; returns false if either event or listener not found
      */
-    public function detach(listener, string eventName = null)
+    public function detach(listener, string eventName = null) -> boolean
     {
         var index, listeners, key;
 
@@ -194,7 +194,7 @@ class EventManager implements Cyant\EventManager\EventManagerInterface
      * @param  callable|null       callback
      * @return ResponseCollection All listener return values
      */
-    public function trigger(string eventName, <Cyant\EventManager\EventInterface> event = null, var callback = null) -> <Cyant\EventManager\ResponseCollection>
+    public function trigger(string! eventName, <Cyant\EventManager\EventInterface> event = null, var callback = null) -> <Cyant\EventManager\ResponseCollection>
     {
         // Initial value of stop propagation flag should be false
         if (event == null) {
@@ -204,16 +204,14 @@ class EventManager implements Cyant\EventManager\EventManagerInterface
         event->stopPropagation(false);
 
         var responses, listeners;
-
         let responses = [];
         let listeners = this->getListeners(eventName);
-
 
         var lastResponse, listenersByPriority, listener;
         for listenersByPriority in listeners {
             for listener in listenersByPriority {
 
-                let lastResponse = call_user_func(listener, event);
+                let lastResponse = {listener}(event);
                 let responses[]  = lastResponse;
 
                 if (event->isPropagationStopped() || (callback && {callback}(lastResponse)) ) {
@@ -305,7 +303,7 @@ class EventManager implements Cyant\EventManager\EventManagerInterface
     /**
      * {@inheritDoc}
      */
-    public function clearListeners(eventName)
+    public function clearListeners(eventName) -> void
     {
         unset(this->events[eventName]);
     }
@@ -313,7 +311,7 @@ class EventManager implements Cyant\EventManager\EventManagerInterface
     /**
      * {@inheritDoc}
      */
-    public function setIdentifiers(identifiers)
+    public function setIdentifiers(identifiers) -> void
     {
         if (identifiers instanceof Traversable) {
             let identifiers = iterator_to_array(identifiers);
@@ -325,7 +323,7 @@ class EventManager implements Cyant\EventManager\EventManagerInterface
     /**
      * {@inheritDoc}
      */
-    public function addIdentifiers(identifiers)
+    public function addIdentifiers(identifiers) -> void
     {
         if (identifiers instanceof Traversable) {
             let identifiers = iterator_to_array(identifiers);
@@ -352,7 +350,7 @@ class EventManager implements Cyant\EventManager\EventManagerInterface
      * @param  array args
      * @return ArrayObject
      */
-    public function prepareArgs(args)
+    public function prepareArgs(args) -> <ArrayObject>
     {
         return new ArrayObject(args);
     }

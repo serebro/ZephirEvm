@@ -19,6 +19,8 @@
 #include "kernel/concat.h"
 #include "kernel/operators.h"
 #include "kernel/hash.h"
+#include "ext/spl/spl_exceptions.h"
+#include "kernel/exception.h"
 
 
 /**
@@ -335,13 +337,19 @@ PHP_METHOD(Cyant_EventManager_EventManager, trigger) {
 	zend_function *_7 = NULL, *_11 = NULL, *_12 = NULL;
 	HashTable *_1, *_4;
 	HashPosition _0, _3;
-	zval *eventName_param = NULL, *event = NULL, *callback = NULL, *responses, *listeners, *lastResponse = NULL, *listenersByPriority = NULL, *listener = NULL, **_2, **_5, *_6 = NULL, *_8 = NULL, *_9 = NULL, _10 = zval_used_for_init, *responseCollection = NULL;
+	zval *eventName_param = NULL, *event = NULL, *callback = NULL, *responses, *listeners, *lastResponse, *listenersByPriority = NULL, *listener = NULL, **_2, **_5, *_6 = NULL, *_8 = NULL, *_9 = NULL, _10 = zval_used_for_init, *responseCollection = NULL;
 	zval *eventName = NULL;
 
 	ZEPHIR_MM_GROW();
 	zephir_fetch_params(1, 1, 2, &eventName_param, &event, &callback);
 
-		zephir_get_strval(eventName, eventName_param);
+		if (Z_TYPE_P(eventName_param) != IS_STRING) {
+				zephir_throw_exception_string(spl_ce_InvalidArgumentException, SL("Parameter 'eventName' must be a string") TSRMLS_CC);
+				RETURN_MM_NULL();
+		}
+
+		eventName = eventName_param;
+
 	if (!event || Z_TYPE_P(event) == IS_NULL) {
 		ZEPHIR_CPY_WRT(event, ZEPHIR_GLOBAL(global_null));
 	}
@@ -373,8 +381,6 @@ PHP_METHOD(Cyant_EventManager_EventManager, trigger) {
 			; zend_hash_move_forward_ex(_4, &_3)
 		) {
 			ZEPHIR_GET_HVALUE(listener, _5);
-			ZEPHIR_INIT_NVAR(lastResponse);
-			zephir_call_func_p2(lastResponse, "call_user_func", listener, event);
 			zephir_array_append(&responses, lastResponse, PH_SEPARATE);
 			ZEPHIR_INIT_NVAR(_6);
 			zephir_call_method_cache(_6, event, "ispropagationstopped", &_7);
