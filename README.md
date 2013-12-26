@@ -1,7 +1,7 @@
 Zend\EventManager
 ================
 
-This is a implementation of the Zend\EventManager written in zephir (http:/www.zephir-lang.com)
+This is a implementation of the Zend\EventManager written in zephir (http://www.zephir-lang.com)
 
 
 Known issues
