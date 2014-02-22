@@ -1709,6 +1709,83 @@ fi
 
 } @%:@ ac_fn_c_try_link
 
+@%:@ ac_fn_c_check_decl LINENO SYMBOL VAR INCLUDES
+@%:@ ---------------------------------------------
+@%:@ Tests whether SYMBOL is declared in INCLUDES, setting cache variable VAR
+@%:@ accordingly.
+ac_fn_c_check_decl ()
+{
+  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
+  as_decl_name=`echo $2|sed 's/ *(.*//'`
+  as_decl_use=`echo $2|sed -e 's/(/((/' -e 's/)/) 0&/' -e 's/,/) 0& (/g'`
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether $as_decl_name is declared" >&5
+$as_echo_n "checking whether $as_decl_name is declared... " >&6; }
+if eval \${$3+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+$4
+int
+main ()
+{
+@%:@ifndef $as_decl_name
+@%:@ifdef __cplusplus
+  (void) $as_decl_use;
+@%:@else
+  (void) $as_decl_name;
+@%:@endif
+@%:@endif
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  eval "$3=yes"
+else
+  eval "$3=no"
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+eval ac_res=\$$3
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
+
+} @%:@ ac_fn_c_check_decl
+
+@%:@ ac_fn_c_check_header_compile LINENO HEADER VAR INCLUDES
+@%:@ -------------------------------------------------------
+@%:@ Tests whether HEADER exists and can be compiled using the include files in
+@%:@ INCLUDES, setting the cache variable VAR accordingly.
+ac_fn_c_check_header_compile ()
+{
+  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $2" >&5
+$as_echo_n "checking for $2... " >&6; }
+if eval \${$3+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+$4
+@%:@include <$2>
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  eval "$3=yes"
+else
+  eval "$3=no"
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+eval ac_res=\$$3
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
+
+} @%:@ ac_fn_c_check_header_compile
+
 @%:@ ac_fn_c_check_header_mongrel LINENO HEADER VAR INCLUDES
 @%:@ -------------------------------------------------------
 @%:@ Tests whether HEADER exists, giving a warning if it cannot be compiled using
@@ -1837,37 +1914,6 @@ fi
   as_fn_set_status $ac_retval
 
 } @%:@ ac_fn_c_try_run
-
-@%:@ ac_fn_c_check_header_compile LINENO HEADER VAR INCLUDES
-@%:@ -------------------------------------------------------
-@%:@ Tests whether HEADER exists and can be compiled using the include files in
-@%:@ INCLUDES, setting the cache variable VAR accordingly.
-ac_fn_c_check_header_compile ()
-{
-  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $2" >&5
-$as_echo_n "checking for $2... " >&6; }
-if eval \${$3+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-$4
-@%:@include <$2>
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  eval "$3=yes"
-else
-  eval "$3=no"
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-fi
-eval ac_res=\$$3
-	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
-$as_echo "$ac_res" >&6; }
-  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
-
-} @%:@ ac_fn_c_check_header_compile
 
 @%:@ ac_fn_c_check_func LINENO FUNC VAR
 @%:@ ----------------------------------
@@ -4097,7 +4143,7 @@ if test "$PHP_CYANT" = "yes"; then
 	
 $as_echo "@%:@define HAVE_CYANT 1" >>confdefs.h
 
-	cyant_sources="cyant.c kernel/main.c kernel/memory.c kernel/exception.c kernel/hash.c kernel/debug.c kernel/backtrace.c kernel/object.c kernel/array.c kernel/string.c kernel/fcall.c kernel/alternative/fcall.c kernel/file.c kernel/operators.c kernel/concat.c cyant/eventmanager/event.c cyant/eventmanager/eventinterface.c cyant/eventmanager/eventmanager.c cyant/eventmanager/eventmanagerinterface.c cyant/eventmanager/listeneraggregateinterface.c cyant/eventmanager/responsecollection.c cyant/eventmanager/sharedeventmanager.c cyant/eventmanager/sharedeventmanagerawareinterface.c cyant/eventmanager/sharedeventmanagerinterface.c cyant/eventmanager/sharedlisteneraggregateinterface.c"
+	cyant_sources="cyant.c kernel/main.c kernel/memory.c kernel/exception.c kernel/hash.c kernel/debug.c kernel/backtrace.c kernel/object.c kernel/array.c kernel/extended/array.c kernel/string.c kernel/fcall.c kernel/require.c kernel/alternative/fcall.c kernel/file.c kernel/operators.c kernel/concat.c kernel/variables.c cyant/eventmanager/event.c cyant/eventmanager/eventinterface.c cyant/eventmanager/eventmanager.c cyant/eventmanager/eventmanagerinterface.c cyant/eventmanager/listeneraggregateinterface.c cyant/eventmanager/responsecollection.c cyant/eventmanager/sharedeventmanager.c cyant/eventmanager/sharedeventmanagerawareinterface.c cyant/eventmanager/sharedeventmanagerinterface.c cyant/eventmanager/sharedlisteneraggregateinterface.c "
 	
   ext_builddir=.
   ext_srcdir=$abs_srcdir
@@ -4391,6 +4437,103 @@ EOF
 
   fi
 
+
+	old_CPPFLAGS=$CPPFLAGS
+	CPPFLAGS="$CPPFLAGS $INCLUDES"
+
+	ac_fn_c_check_decl "$LINENO" "HAVE_BUNDLED_PCRE" "ac_cv_have_decl_HAVE_BUNDLED_PCRE" "#include \"php_config.h\"
+	
+"
+if test "x$ac_cv_have_decl_HAVE_BUNDLED_PCRE" = xyes; then :
+  
+			for ac_header in ext/pcre/php_pcre.h
+do :
+  ac_fn_c_check_header_compile "$LINENO" "ext/pcre/php_pcre.h" "ac_cv_header_ext_pcre_php_pcre_h" "#include \"main/php.h\"
+			
+"
+if test "x$ac_cv_header_ext_pcre_php_pcre_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+@%:@define HAVE_EXT_PCRE_PHP_PCRE_H 1
+_ACEOF
+ 
+					
+  am_i_shared=$PHP_CYANT_SHARED
+  is_it_shared=$PHP_PCRE_SHARED
+  is_it_enabled=$PHP_PCRE
+  if test "$am_i_shared" = "no" && test "$is_it_shared" = "yes" ; then
+    as_fn_error $? "
+You've configured extension cyant to build statically, but it
+depends on extension pcre, which you've configured to build shared.
+You either need to build cyant shared or build pcre statically for the
+build to be successful.
+" "$LINENO" 5
+  fi
+  if test "x$is_it_enabled" = "xno" && test "x" != "xtrue"; then
+    as_fn_error $? "
+You've configured extension cyant, which depends on extension pcre,
+but you've either not enabled pcre, or have disabled it.
+" "$LINENO" 5
+  fi
+  
+					
+$as_echo "@%:@define ZEPHIR_USE_PHP_PCRE 1" >>confdefs.h
+
+				
+fi
+
+done
+
+		
+fi
+
+
+	ac_fn_c_check_decl "$LINENO" "HAVE_JSON" "ac_cv_have_decl_HAVE_JSON" "#include \"php_config.h\"
+	
+"
+if test "x$ac_cv_have_decl_HAVE_JSON" = xyes; then :
+  
+			for ac_header in ext/json/php_json.h
+do :
+  ac_fn_c_check_header_compile "$LINENO" "ext/json/php_json.h" "ac_cv_header_ext_json_php_json_h" "#include \"main/php.h\"
+			
+"
+if test "x$ac_cv_header_ext_json_php_json_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+@%:@define HAVE_EXT_JSON_PHP_JSON_H 1
+_ACEOF
+ 
+					
+  am_i_shared=$PHP_CYANT_SHARED
+  is_it_shared=$PHP_JSON_SHARED
+  is_it_enabled=$PHP_JSON
+  if test "$am_i_shared" = "no" && test "$is_it_shared" = "yes" ; then
+    as_fn_error $? "
+You've configured extension cyant to build statically, but it
+depends on extension json, which you've configured to build shared.
+You either need to build cyant shared or build json statically for the
+build to be successful.
+" "$LINENO" 5
+  fi
+  if test "x$is_it_enabled" = "xno" && test "x" != "xtrue"; then
+    as_fn_error $? "
+You've configured extension cyant, which depends on extension json,
+but you've either not enabled json, or have disabled it.
+" "$LINENO" 5
+  fi
+  
+					
+$as_echo "@%:@define ZEPHIR_USE_PHP_JSON 1" >>confdefs.h
+
+				
+fi
+
+done
+
+		
+fi
+
+
+	CPPFLAGS=$old_CPPFLAGS
 fi
 
 

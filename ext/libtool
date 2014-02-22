@@ -44,7 +44,7 @@ available_tags=""
 
 # ### BEGIN LIBTOOL CONFIG
 
-# Libtool was configured on host Antoines-MacBook-Air.local:
+# Libtool was configured on host antoines-air.lan:
 
 # Shell to use when invoking shell scripts.
 SHELL="/bin/sh"
@@ -82,13 +82,13 @@ AR="ar"
 AR_FLAGS="cru"
 
 # A C compiler.
-LTCC="cc"
+LTCC="gcc"
 
 # LTCC compiler flags.
-LTCFLAGS="-g -O2"
+LTCFLAGS="-O2 -fvisibility=hidden -Wparentheses"
 
 # A language-specific compiler.
-CC="cc"
+CC="gcc"
 
 # Is the compiler the GNU C compiler?
 with_gcc=yes

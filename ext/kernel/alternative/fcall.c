@@ -3,7 +3,7 @@
   +------------------------------------------------------------------------+
   | Zephir Language                                                        |
   +------------------------------------------------------------------------+
-  | Copyright (c) 2011-2013 Zephir Team (http://www.zephir-lang.com)       |
+  | Copyright (c) 2011-2014 Zephir Team (http://www.zephir-lang.com)       |
   +------------------------------------------------------------------------+
   | This source file is subject to the New BSD License that is bundled     |
   | with this package in the file docs/LICENSE.txt.                        |
@@ -412,12 +412,11 @@ int zephir_alt_call_method(zend_fcall_info *fci, zend_class_entry *ce, unsigned 
 	#if PHP_VERSION_ID < 50500
 	zend_vm_stack_push_nocheck((void*)(zend_uintptr_t)fci->param_count TSRMLS_CC);
 	#else
-	zend_vm_stack_push_nocheck((void*)(zend_uintptr_t)fci->param_count TSRMLS_CC);
+	zend_vm_stack_push((void*)(zend_uintptr_t)fci->param_count TSRMLS_CC);
 	#endif
 
 	current_scope = EG(scope);
 	EG(scope) = calling_scope;
-
 	current_this = EG(This);
 
 	current_called_scope = EG(called_scope);

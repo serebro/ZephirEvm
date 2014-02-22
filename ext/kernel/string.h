@@ -3,7 +3,7 @@
   +------------------------------------------------------------------------+
   | Zephir Language                                                        |
   +------------------------------------------------------------------------+
-  | Copyright (c) 2011-2013 Zephir Team (http://www.zephir-lang.com)       |
+  | Copyright (c) 2011-2014 Zephir Team (http://www.zephir-lang.com)       |
   +------------------------------------------------------------------------+
   | This source file is subject to the New BSD License that is bundled     |
   | with this package in the file docs/LICENSE.txt.                        |
@@ -38,13 +38,13 @@ void zephir_fast_strtolower(zval *return_value, zval *str);
 void zephir_strtolower_inplace(zval *s);
 void zephir_fast_join(zval *result, zval *glue, zval *pieces TSRMLS_DC);
 void zephir_fast_join_str(zval *result, char *glue, unsigned int glue_length, zval *pieces TSRMLS_DC);
-void zephir_fast_explode(zval *result, zval *delimiter, zval *str);
-void zephir_fast_explode_str(zval *result, const char *delimiter, int delimiter_length, zval *str);
-void zephir_fast_strpos(zval *return_value, const zval *haystack, const zval *needle);
+void zephir_fast_explode(zval *result, zval *delimiter, zval *str, long limit TSRMLS_DC);
+void zephir_fast_explode_str(zval *result, const char *delimiter, int delimiter_length, zval *str, long limit TSRMLS_DC);
+void zephir_fast_strpos(zval *return_value, const zval *haystack, const zval *needle, unsigned int offset);
 void zephir_fast_strpos_str(zval *return_value, const zval *haystack, char *needle, unsigned int needle_length);
 void zephir_fast_stripos_str(zval *return_value, zval *haystack, char *needle, unsigned int needle_length);
 void zephir_fast_str_replace(zval *return_value, zval *search, zval *replace, zval *subject);
-void zephir_fast_trim(zval *return_value, zval *str, int where TSRMLS_DC);
+void zephir_fast_trim(zval *return_value, zval *str, zval *charlist, int where TSRMLS_DC);
 void zephir_fast_strip_tags(zval *return_value, zval *str);
 void zephir_fast_strtoupper(zval *return_value, zval *str);
 
@@ -72,13 +72,13 @@ void zephir_unique_key(zval *return_value, zval *prefix, zval *value TSRMLS_DC);
 int zephir_spprintf(char **message, int max_len, char *format, ...);
 
 /* Substr */
-void zephir_substr(zval *return_value, zval *str, unsigned long from, unsigned long length);
+void zephir_substr(zval *return_value, zval *str, long from, long length);
 
 /** EOL */
 zval *zephir_eol(int eol TSRMLS_DC);
 
 /** Preg-Match */
-void zephir_preg_match(zval *return_value, zval **return_value_ptr, zval *regex, zval *subject, zval *matches TSRMLS_DC);
+void zephir_preg_match(zval *return_value, zval **return_value_ptr, zval *regex, zval *subject, zval *matches, int global, long flags, long offset TSRMLS_DC);
 
 /** Base64 */
 void zephir_base64_encode(zval *return_value, zval *data);
@@ -100,6 +100,8 @@ void zephir_htmlentities(zval *return_value, zval *string, zval *quoting, zval *
 void zephir_strval(zval *return_value, zval *v);
 void zephir_date(zval *return_value, zval *format, zval *timestamp TSRMLS_DC);
 void zephir_addslashes(zval *return_value, zval *str TSRMLS_DC);
+void zephir_stripslashes(zval *return_value, zval *str TSRMLS_DC);
+void zephir_stripcslashes(zval *return_value, zval *str TSRMLS_DC);
 
 #if PHP_VERSION_ID < 50400
 

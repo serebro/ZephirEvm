@@ -26,7 +26,6 @@ ZEPHIR_INIT_CLASS(Cyant_EventManager_SharedEventManagerAwareInterface) {
 
 	ZEPHIR_REGISTER_INTERFACE(Cyant\\EventManager, SharedEventManagerAwareInterface, cyant, eventmanager_sharedeventmanagerawareinterface, cyant_eventmanager_sharedeventmanagerawareinterface_method_entry);
 
-
 	return SUCCESS;
 
 }

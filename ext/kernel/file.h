@@ -3,7 +3,7 @@
   +------------------------------------------------------------------------+
   | Zephir Language                                                        |
   +------------------------------------------------------------------------+
-  | Copyright (c) 2011-2013 Zephir Team (http://www.zephir-lang.com)       |
+  | Copyright (c) 2011-2014 Zephir Team (http://www.zephir-lang.com)       |
   +------------------------------------------------------------------------+
   | This source file is subject to the New BSD License that is bundled     |
   | with this package in the file docs/LICENSE.txt.                        |
@@ -37,6 +37,7 @@ void zephir_basename(zval *return_value, zval *path TSRMLS_DC);
 
 void zephir_fwrite(zval *return_value, zval *stream_zval, zval *data TSRMLS_DC);
 int zephir_feof(zval *stream_zval TSRMLS_DC);
+int zephir_fclose(zval *stream_zval TSRMLS_DC);
 
 #ifdef TSRM_WIN32
 #define ZEPHIR_DIRECTORY_SEPARATOR "\\"

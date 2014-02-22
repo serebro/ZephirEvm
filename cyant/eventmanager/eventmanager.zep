@@ -14,7 +14,7 @@ namespace Cyant\EventManager;
  * Use the EventManager when you want to create a per-instance notification
  * system for your objects.
  */
-class EventManager implements Cyant\EventManager\EventManagerInterface
+class EventManager implements EventManagerInterface
 {
     /**
      * Subscribed events and their listeners
@@ -64,7 +64,7 @@ class EventManager implements Cyant\EventManager\EventManagerInterface
      * @param  SharedEventManagerInterface sharedEventManager
      * @return void
      */
-    public function setSharedManager(<Cyant\EventManager\SharedEventManagerInterface> sharedEventManager) -> void
+    public function setSharedManager(<SharedEventManagerInterface> sharedEventManager) -> void
     {
         let this->sharedManager = sharedEventManager;
     }
@@ -74,7 +74,7 @@ class EventManager implements Cyant\EventManager\EventManagerInterface
      *
      * @return SharedEventManagerInterface|null
      */
-    public function getSharedManager() -> <Cyant\EventManager\SharedManagerInterface>
+    public function getSharedManager() -> <SharedManagerInterface>
     {
         return this->sharedManager;
     }
@@ -125,7 +125,7 @@ class EventManager implements Cyant\EventManager\EventManagerInterface
      * @param  int                        priority If provided, a suggested priority for the aggregate to use
      * @return mixed return value of {@link ListenerAggregateInterface::attach()}
      */
-    public function attachAggregate(<Cyant\EventManager\ListenerAggregateInterface> aggregate, priority = 1)
+    public function attachAggregate(<ListenerAggregateInterface> aggregate, priority = 1)
     {
         return aggregate->attach(this, priority);
     }
@@ -142,33 +142,6 @@ class EventManager implements Cyant\EventManager\EventManagerInterface
      */
     public function detach(listener, string eventName = null) -> boolean
     {
-        var index, listeners, key;
-
-        if (!empty(eventName) && isset(this->events[eventName])) {
-
-            for index, listeners in this->events[eventName] {
-
-                let key = array_search(listener, listeners, true);
-                if (key !== false) {
-                    unset(this->events[eventNameindex][index][key]);
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        var event;
-        for event in this->events {
-            for listener in event {
-                let key = array_search(listener, listeners, true);
-                if (key !== false) {
-                    unset(this->events[eventNameindex][index][key]);
-                    return true;
-                }
-            }
-        }
-
         return false;
     }
 
@@ -181,7 +154,7 @@ class EventManager implements Cyant\EventManager\EventManagerInterface
      * @param  ListenerAggregateInterface aggregate
      * @return bool
      */
-    public function detachAggregate(<Cyant\Eventmanager\ListenerAggregateInterface> aggregate)
+    public function detachAggregate(<ListenerAggregateInterface> aggregate)
     {
         return aggregate->detach(this);
     }
@@ -194,11 +167,11 @@ class EventManager implements Cyant\EventManager\EventManagerInterface
      * @param  callable|null       callback
      * @return ResponseCollection All listener return values
      */
-    public function trigger(string! eventName, <Cyant\EventManager\EventInterface> event = null, var callback = null) -> <Cyant\EventManager\ResponseCollection>
+    public function trigger(string! eventName, <EventInterface> event = null, var callback = null) -> <ResponseCollection>
     {
         // Initial value of stop propagation flag should be false
         if (event == null) {
-            let event = new Cyant\EventManager\Event();
+            let event = new Event();
         }
 
         event->stopPropagation(false);
@@ -211,13 +184,13 @@ class EventManager implements Cyant\EventManager\EventManagerInterface
         for listenersByPriority in listeners {
             for listener in listenersByPriority {
 
-                let lastResponse = {listener}(event);
+                let lastResponse = listener(event);
                 let responses[]  = lastResponse;
 
                 if (event->isPropagationStopped() || (callback && {callback}(lastResponse)) ) {
 
                     var responseCollection;
-                    let responseCollection = new Cyant\EventManager\ResponseCollection(responses);
+                    let responseCollection = new ResponseCollection(responses);
                     responseCollection->setStopped(true);
 
                     return responseCollection;
@@ -225,7 +198,7 @@ class EventManager implements Cyant\EventManager\EventManagerInterface
             }
         }
 
-        return new Cyant\EventManager\ResponseCollection(responses);
+        return new ResponseCollection(responses);
     }
 
     /**

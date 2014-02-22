@@ -31,7 +31,6 @@ ZEPHIR_INIT_CLASS(Cyant_EventManager_SharedListenerAggregateInterface) {
 
 	ZEPHIR_REGISTER_INTERFACE(Cyant\\EventManager, SharedListenerAggregateInterface, cyant, eventmanager_sharedlisteneraggregateinterface, cyant_eventmanager_sharedlisteneraggregateinterface_method_entry);
 
-
 	return SUCCESS;
 
 }

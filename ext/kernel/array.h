@@ -3,7 +3,7 @@
   +------------------------------------------------------------------------+
   | Zephir Language                                                        |
   +------------------------------------------------------------------------+
-  | Copyright (c) 2011-2013 Zephir Team (http://www.zephir-lang.com)       |
+  | Copyright (c) 2011-2014 Zephir Team (http://www.zephir-lang.com)       |
   +------------------------------------------------------------------------+
   | This source file is subject to the New BSD License that is bundled     |
   | with this package in the file docs/LICENSE.txt.                        |
@@ -14,6 +14,7 @@
   +------------------------------------------------------------------------+
   | Authors: Andres Gutierrez <andres@zephir-lang.com>                     |
   |          Eduar Carvajal <eduar@zephir-lang.com>                        |
+  |          Vladimir Kolesnikov <vladimir@extrememember.com>              |
   +------------------------------------------------------------------------+
 */
 
@@ -47,7 +48,7 @@ int zephir_array_append_string(zval **arr, char *value, uint value_length, int s
 /** Modify arrays */
 int zephir_array_update_zval(zval **arr, zval *index, zval **value, int flags);
 int zephir_array_update_string(zval **arr, const char *index, uint index_length, zval **value, int flags);
-int zephir_array_update_long(zval **arr, unsigned long index, zval **value, int flags);
+int zephir_array_update_long(zval **arr, unsigned long index, zval **value, int flags ZEPHIR_DEBUG_PARAMS);
 
 /** Fetch items from arrays */
 int zephir_array_fetch(zval **return_value, zval *arr, zval *index, int flags TSRMLS_DC);
@@ -71,7 +72,7 @@ void zephir_fast_array_merge(zval *return_value, zval **array1, zval **array2 TS
 void zephir_array_merge_recursive_n(zval **a1, zval *a2 TSRMLS_DC);
 
 void zephir_array_unshift(zval *arr, zval *arg);
-void zephir_array_keys(zval *return_value, zval *arr);
+void zephir_array_keys(zval *return_value, zval *arr TSRMLS_DC);
 void zephir_array_values(zval *return_value, zval *arr);
 int zephir_array_key_exists(zval *arr, zval *key TSRMLS_DC);
 int zephir_array_is_associative(zval *arr);

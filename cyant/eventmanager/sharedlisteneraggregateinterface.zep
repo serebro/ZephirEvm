@@ -27,7 +27,7 @@ interface SharedListenerAggregateInterface
      * @param SharedEventManagerInterface events
      * @return mixed
      */
-    public function attachShared(<Cyant\EventManager\SharedEventManagerInterface> events);
+    public function attachShared(<SharedEventManagerInterface> events);
 
     /**
      * Detach all previously attached listeners
@@ -35,5 +35,5 @@ interface SharedListenerAggregateInterface
      * @param SharedEventManagerInterface events
      * @return bool Returns true if event and listener found, and unsubscribed; returns false if either event or listener not found
      */
-    public function detachShared(<Cyant\EventManager\SharedEventManagerInterface> events);
+    public function detachShared(<SharedEventManagerInterface> events);
 }

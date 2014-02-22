@@ -3,7 +3,7 @@
   +------------------------------------------------------------------------+
   | Zephir Language                                                        |
   +------------------------------------------------------------------------+
-  | Copyright (c) 2011-2013 Zephir Team (http://www.zephir-lang.com)       |
+  | Copyright (c) 2011-2014 Zephir Team (http://www.zephir-lang.com)       |
   +------------------------------------------------------------------------+
   | This source file is subject to the New BSD License that is bundled     |
   | with this package in the file docs/LICENSE.txt.                        |
@@ -14,6 +14,7 @@
   +------------------------------------------------------------------------+
   | Authors: Andres Gutierrez <andres@zephir-lang.com>                     |
   |          Eduar Carvajal <eduar@zephir-lang.com>                        |
+  |          Vladimir Kolesnikov <vladimir@extrememember.com>              |
   +------------------------------------------------------------------------+
 */
 
@@ -21,9 +22,10 @@
 #include "config.h"
 #endif
 
-#include "php.h"
+#include <php.h>
 #include "php_ext.h"
-#include "ext/standard/php_array.h"
+#include <ext/standard/php_array.h>
+#include <Zend/zend_hash.h>
 
 #include "kernel/main.h"
 #include "kernel/memory.h"
@@ -258,11 +260,11 @@ int ZEPHIR_FASTCALL zephir_array_unset(zval **arr, zval *index, int flags) {
 	HashTable *ht;
 
 	if (Z_TYPE_PP(arr) != IS_ARRAY) {
-		return 0;
+		return FAILURE;
 	}
 
 	if ((flags & PH_SEPARATE) == PH_SEPARATE) {
-		SEPARATE_ZVAL(arr);
+		SEPARATE_ZVAL_IF_NOT_REF(arr);
 	}
 
 	ht = Z_ARRVAL_PP(arr);
@@ -305,7 +307,7 @@ int ZEPHIR_FASTCALL zephir_array_unset_string(zval **arr, const char *index, uin
 	}
 
 	if ((flags & PH_SEPARATE) == PH_SEPARATE) {
-		SEPARATE_ZVAL(arr);
+		SEPARATE_ZVAL_IF_NOT_REF(arr);
 	}
 
 	return zend_hash_del(Z_ARRVAL_PP(arr), index, index_length);
@@ -327,7 +329,7 @@ int ZEPHIR_FASTCALL zephir_array_unset_long(zval **arr, unsigned long index, int
 	}
 
 	if ((flags & PH_SEPARATE) == PH_SEPARATE) {
-		SEPARATE_ZVAL(arr);
+		SEPARATE_ZVAL_IF_NOT_REF(arr);
 	}
 
 	return zend_hash_index_del(Z_ARRVAL_PP(arr), index);
@@ -351,7 +353,7 @@ int zephir_array_append(zval **arr, zval *value, int flags) {
 	}
 
 	if ((flags & PH_SEPARATE) == PH_SEPARATE) {
-		SEPARATE_ZVAL(arr);
+		SEPARATE_ZVAL_IF_NOT_REF(arr);
 	}
 
 	Z_ADDREF_P(value);
@@ -444,7 +446,7 @@ int zephir_array_update_zval(zval **arr, zval *index, zval **value, int flags) {
 	}
 
 	if ((flags & PH_SEPARATE) == PH_SEPARATE) {
-		SEPARATE_ZVAL(arr);
+		SEPARATE_ZVAL_IF_NOT_REF(arr);
 	}
 
 	if ((flags & PH_COPY) == PH_COPY) {
@@ -602,7 +604,7 @@ int zephir_array_update_quick_string(zval **arr, const char *index, uint index_l
 	}
 
 	if ((flags & PH_SEPARATE) == PH_SEPARATE) {
-		SEPARATE_ZVAL(arr);
+		SEPARATE_ZVAL_IF_NOT_REF(arr);
 	}
 
 	if ((flags & PH_COPY) == PH_COPY) {
@@ -751,7 +753,7 @@ int zephir_array_update_string_string(zval **arr, const char *index, uint index_
  * @arg @c PH_SEPARATE: separate @a arr if its reference count is greater than 1; @c *arr will contain the separated version
  * @arg @c PH_COPY: increment the reference count on @c **value
  */
-int zephir_array_update_long(zval **arr, unsigned long index, zval **value, int flags){
+int zephir_array_update_long(zval **arr, unsigned long index, zval **value, int flags ZEPHIR_DEBUG_PARAMS){
 
 	if (Z_TYPE_PP(arr) != IS_ARRAY) {
 		zend_error(E_WARNING, "Cannot use a scalar value as an array");
@@ -768,7 +770,7 @@ int zephir_array_update_long(zval **arr, unsigned long index, zval **value, int 
 	}
 
 	if ((flags & PH_SEPARATE) == PH_SEPARATE) {
-		SEPARATE_ZVAL(arr);
+		SEPARATE_ZVAL_IF_NOT_REF(arr);
 	}
 
 	if ((flags & PH_COPY) == PH_COPY) {
@@ -1134,34 +1136,39 @@ void zephir_array_unshift(zval *arr, zval *arg)
 	}
 }
 
-void zephir_array_keys(zval *return_value, zval *arr) {
+void zephir_array_keys(zval *return_value, zval *input TSRMLS_DC)
+{
 
-	if (likely(Z_TYPE_P(arr) == IS_ARRAY)) {
-		HashPosition pos;
-		zval **entry, *new_val;
-		char *skey;
-		uint skey_len;
-		ulong nkey;
+	zval *new_val, **entry;
+	char  *string_key;
+	uint   string_key_len;
+	ulong  num_key;
+	HashPosition pos;
 
-		array_init_size(return_value, zend_hash_num_elements(Z_ARRVAL_P(arr)));
+	if (likely(Z_TYPE_P(input) == IS_ARRAY)) {
 
-		zend_hash_internal_pointer_reset_ex(Z_ARRVAL_P(arr), &pos);
-		while (zend_hash_get_current_data_ex(Z_ARRVAL_P(arr), (void**)&entry, &pos) == SUCCESS) {
+		array_init_size(return_value, zend_hash_num_elements(Z_ARRVAL_P(input)));
+
+		/* Go through input array and add keys to the return array */
+		zend_hash_internal_pointer_reset_ex(Z_ARRVAL_P(input), &pos);
+		while (zend_hash_get_current_data_ex(Z_ARRVAL_P(input), (void **)&entry, &pos) == SUCCESS) {
+
 			MAKE_STD_ZVAL(new_val);
 
-			switch (zend_hash_get_current_key_ex(Z_ARRVAL_P(arr), &skey, &skey_len, &nkey, 1, &pos)) {
+			switch (zend_hash_get_current_key_ex(Z_ARRVAL_P(input), &string_key, &string_key_len, &num_key, 1, &pos)) {
 				case HASH_KEY_IS_STRING:
-					ZVAL_STRINGL(new_val, skey, skey_len - 1, 0);
-					zend_hash_next_index_insert(Z_ARRVAL_P(arr), &new_val, sizeof(zval*), NULL);
+					ZVAL_STRINGL(new_val, string_key, string_key_len - 1, 0);
+					zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &new_val, sizeof(zval *), NULL);
 					break;
 
 				case HASH_KEY_IS_LONG:
-					ZVAL_LONG(new_val, nkey);
-					zend_hash_next_index_insert(Z_ARRVAL_P(arr), &new_val, sizeof(zval*), NULL);
+					Z_TYPE_P(new_val) = IS_LONG;
+					Z_LVAL_P(new_val) = num_key;
+					zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &new_val, sizeof(zval *), NULL);
 					break;
 			}
 
-			zend_hash_move_forward_ex(Z_ARRVAL_P(arr), &pos);
+			zend_hash_move_forward_ex(Z_ARRVAL_P(input), &pos);
 		}
 	}
 }
@@ -1277,7 +1284,7 @@ int zephir_array_update_multi(zval **arr, zval **value TSRMLS_DC, const char *ty
 				if (zephir_array_isset_long_fetch(&fetched, p, ll, 1 TSRMLS_CC)) {
 					if (Z_TYPE_P(fetched) == IS_ARRAY) {
 						if (i == (types_length - 1)) {
-							zephir_array_update_long(&fetched, ll, value, PH_COPY | PH_SEPARATE);
+							zephir_array_update_long(&fetched, ll, value, PH_COPY | PH_SEPARATE, "", 0);
 						} else {
 							p = fetched;
 						}
@@ -1285,11 +1292,11 @@ int zephir_array_update_multi(zval **arr, zval **value TSRMLS_DC, const char *ty
 					}
 				}
 				if (i == (types_length - 1)) {
-					zephir_array_update_long(&p, ll, value, PH_COPY | PH_SEPARATE);
+					zephir_array_update_long(&p, ll, value, PH_COPY | PH_SEPARATE, "", 0);
 				} else {
 					MAKE_STD_ZVAL(tmp);
 					array_init(tmp);
-					zephir_array_update_long(&p, ll, &tmp, PH_SEPARATE);
+					zephir_array_update_long(&p, ll, &tmp, PH_SEPARATE, "", 0);
 					p = tmp;
 				}
 				break;

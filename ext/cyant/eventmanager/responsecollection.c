@@ -35,13 +35,14 @@ ZEPHIR_INIT_CLASS(Cyant_EventManager_ResponseCollection) {
 
 	ZEPHIR_REGISTER_CLASS(Cyant\\EventManager, ResponseCollection, cyant, eventmanager_responsecollection, cyant_eventmanager_responsecollection_method_entry, 0);
 
-/**
-     * @var array
-     */
+	/**
+	 * @var array
+	 */
 	zend_declare_property_null(cyant_eventmanager_responsecollection_ce, SL("responses"), ZEND_ACC_PROTECTED TSRMLS_CC);
-/**
-     * @var bool
-     */
+
+	/**
+	 * @var bool
+	 */
 	zend_declare_property_bool(cyant_eventmanager_responsecollection_ce, SL("stopped"), 0, ZEND_ACC_PROTECTED TSRMLS_CC);
 
 	return SUCCESS;
@@ -53,29 +54,30 @@ ZEPHIR_INIT_CLASS(Cyant_EventManager_ResponseCollection) {
  */
 PHP_METHOD(Cyant_EventManager_ResponseCollection, __construct) {
 
-	zval *responses = NULL, *_0, _1, _2;
+	int ZEPHIR_LAST_CALL_STATUS;
+	zval *responses = NULL, _0, _1;
 
 	ZEPHIR_MM_GROW();
 	zephir_fetch_params(1, 0, 1, &responses);
 
-	if (!responses || Z_TYPE_P(responses) == IS_NULL) {
+	if (!responses) {
 		ZEPHIR_CPY_WRT(responses, ZEPHIR_GLOBAL(global_null));
+	} else {
+		ZEPHIR_SEPARATE_PARAM(responses);
 	}
-	ZEPHIR_SEPARATE_PARAM(responses);
 
 
 	if ((Z_TYPE_P(responses) == IS_NULL)) {
 		ZEPHIR_INIT_NVAR(responses);
 		array_init(responses);
 	}
-	ZEPHIR_INIT_VAR(_0);
-	zephir_call_func_p1(_0, "is_array", responses);
-	if (!(zephir_is_true(_0))) {
+	if (!(Z_TYPE_P(responses) == IS_ARRAY)) {
+		ZEPHIR_SINIT_VAR(_0);
+		ZVAL_STRING(&_0, "First argument must be an array", 0);
 		ZEPHIR_SINIT_VAR(_1);
-		ZVAL_STRING(&_1, "First argument must be an array", 0);
-		ZEPHIR_SINIT_VAR(_2);
-		ZVAL_LONG(&_2, 256);
-		zephir_call_func_p2_noret("trigger_error", &_1, &_2);
+		ZVAL_LONG(&_1, 256);
+		zephir_call_func_p2_noret("trigger_error", &_0, &_1);
+		zephir_check_call_status();
 	}
 	zephir_update_property_this(this_ptr, SL("responses"), responses TSRMLS_CC);
 	ZEPHIR_MM_RESTORE();
@@ -107,7 +109,7 @@ PHP_METHOD(Cyant_EventManager_ResponseCollection, setStopped) {
 
 	zephir_fetch_params(0, 1, 0, &flag_param);
 
-		flag = zephir_get_boolval(flag_param);
+	flag = zephir_get_boolval(flag_param);
 
 
 	zephir_update_property_this(this_ptr, SL("stopped"), flag ? ZEPHIR_GLOBAL(global_true) : ZEPHIR_GLOBAL(global_false) TSRMLS_CC);
@@ -121,6 +123,7 @@ PHP_METHOD(Cyant_EventManager_ResponseCollection, setStopped) {
  */
 PHP_METHOD(Cyant_EventManager_ResponseCollection, first) {
 
+	int ZEPHIR_LAST_CALL_STATUS;
 	zval *_0, *_1;
 
 	ZEPHIR_MM_GROW();
@@ -128,9 +131,13 @@ PHP_METHOD(Cyant_EventManager_ResponseCollection, first) {
 	_0 = zephir_fetch_nproperty_this(this_ptr, SL("responses"), PH_NOISY_CC);
 	Z_SET_ISREF_P(_0);
 	zephir_call_func_p1_noret("reset", _0);
+	zephir_check_call_status();
+	Z_UNSET_ISREF_P(_0);
 	_1 = zephir_fetch_nproperty_this(this_ptr, SL("responses"), PH_NOISY_CC);
 	Z_SET_ISREF_P(_1);
 	zephir_call_func_p1(return_value, "current", _1);
+	zephir_check_call_status();
+	Z_UNSET_ISREF_P(_1);
 	RETURN_MM();
 
 }
@@ -145,6 +152,7 @@ PHP_METHOD(Cyant_EventManager_ResponseCollection, first) {
  */
 PHP_METHOD(Cyant_EventManager_ResponseCollection, last) {
 
+	int ZEPHIR_LAST_CALL_STATUS;
 	zval *last, *_0;
 
 	ZEPHIR_MM_GROW();
@@ -153,6 +161,8 @@ PHP_METHOD(Cyant_EventManager_ResponseCollection, last) {
 	Z_SET_ISREF_P(_0);
 	ZEPHIR_INIT_VAR(last);
 	zephir_call_func_p1(last, "end", _0);
+	zephir_check_call_status();
+	Z_UNSET_ISREF_P(_0);
 	if (ZEPHIR_IS_FALSE(last)) {
 		RETURN_MM_NULL();
 	} else {
@@ -170,6 +180,7 @@ PHP_METHOD(Cyant_EventManager_ResponseCollection, last) {
  */
 PHP_METHOD(Cyant_EventManager_ResponseCollection, contains) {
 
+	int ZEPHIR_LAST_CALL_STATUS;
 	zval *value, *_0;
 
 	ZEPHIR_MM_GROW();
@@ -179,6 +190,7 @@ PHP_METHOD(Cyant_EventManager_ResponseCollection, contains) {
 
 	_0 = zephir_fetch_nproperty_this(this_ptr, SL("responses"), PH_NOISY_CC);
 	zephir_call_func_p3(return_value, "in_array", value, _0, ZEPHIR_GLOBAL(global_true));
+	zephir_check_call_status();
 	RETURN_MM();
 
 }

@@ -57,5 +57,5 @@ ZEPHIR_INIT_FUNCS(cyant_eventmanager_eventmanagerinterface_method_entry) {
 	PHP_ABSTRACT_ME(Cyant_EventManager_EventManagerInterface, setIdentifiers, arginfo_cyant_eventmanager_eventmanagerinterface_setidentifiers)
 	PHP_ABSTRACT_ME(Cyant_EventManager_EventManagerInterface, addIdentifiers, arginfo_cyant_eventmanager_eventmanagerinterface_addidentifiers)
 	PHP_ABSTRACT_ME(Cyant_EventManager_EventManagerInterface, getIdentifiers, NULL)
-	PHP_FE_END
+  PHP_FE_END
 };

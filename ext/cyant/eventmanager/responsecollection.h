@@ -29,5 +29,5 @@ ZEPHIR_INIT_FUNCS(cyant_eventmanager_responsecollection_method_entry) {
 	PHP_ME(Cyant_EventManager_ResponseCollection, first, NULL, ZEND_ACC_PUBLIC)
 	PHP_ME(Cyant_EventManager_ResponseCollection, last, NULL, ZEND_ACC_PUBLIC)
 	PHP_ME(Cyant_EventManager_ResponseCollection, contains, arginfo_cyant_eventmanager_responsecollection_contains, ZEND_ACC_PUBLIC)
-	PHP_FE_END
+  PHP_FE_END
 };

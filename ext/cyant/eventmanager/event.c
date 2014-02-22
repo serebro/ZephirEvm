@@ -36,21 +36,22 @@ ZEPHIR_INIT_CLASS(Cyant_EventManager_Event) {
 
 	ZEPHIR_REGISTER_CLASS(Cyant\\EventManager, Event, cyant, eventmanager_event, cyant_eventmanager_event_method_entry, 0);
 
-/**
-     * @var string|object The event target
-     */
+	/**
+	 * @var string|object The event target
+	 */
 	zend_declare_property_null(cyant_eventmanager_event_ce, SL("target"), ZEND_ACC_PROTECTED TSRMLS_CC);
-/**
-     * @var array The event parameters
-     */
+
+	/**
+	 * @var array The event parameters
+	 */
 	zend_declare_property_null(cyant_eventmanager_event_ce, SL("params"), ZEND_ACC_PROTECTED TSRMLS_CC);
-/**
-     * @var bool Whether or not to stop propagation
-     */
+
+	/**
+	 * @var bool Whether or not to stop propagation
+	 */
 	zend_declare_property_bool(cyant_eventmanager_event_ce, SL("stopPropagation"), 0, ZEND_ACC_PROTECTED TSRMLS_CC);
 
 	zend_class_implements(cyant_eventmanager_event_ce TSRMLS_CC, 1, cyant_eventmanager_eventinterface_ce);
-
 	return SUCCESS;
 
 }
@@ -65,25 +66,29 @@ ZEPHIR_INIT_CLASS(Cyant_EventManager_Event) {
  */
 PHP_METHOD(Cyant_EventManager_Event, __construct) {
 
+	int ZEPHIR_LAST_CALL_STATUS;
 	zval *target = NULL, *params = NULL;
 
 	ZEPHIR_MM_GROW();
 	zephir_fetch_params(1, 0, 2, &target, &params);
 
-	if (!target || Z_TYPE_P(target) == IS_NULL) {
+	if (!target) {
 		target = ZEPHIR_GLOBAL(global_null);
 	}
-	if (!params || Z_TYPE_P(params) == IS_NULL) {
+	if (!params) {
 		ZEPHIR_CPY_WRT(params, ZEPHIR_GLOBAL(global_null));
+	} else {
+		ZEPHIR_SEPARATE_PARAM(params);
 	}
-	ZEPHIR_SEPARATE_PARAM(params);
 
 
 	ZEPHIR_INIT_BNVAR(params);
 	array_init(params);
 	zephir_call_method_p1_noret(this_ptr, "settarget", target);
+	zephir_check_call_status();
 	if ((Z_TYPE_P(params) != IS_NULL)) {
 		zephir_call_method_p1_noret(this_ptr, "setparams", params);
+		zephir_check_call_status();
 	}
 	ZEPHIR_MM_RESTORE();
 
@@ -121,6 +126,7 @@ PHP_METHOD(Cyant_EventManager_Event, getTarget) {
  */
 PHP_METHOD(Cyant_EventManager_Event, setParams) {
 
+	int ZEPHIR_LAST_CALL_STATUS;
 	zval *params = NULL, *_0;
 
 	ZEPHIR_MM_GROW();
@@ -129,9 +135,10 @@ PHP_METHOD(Cyant_EventManager_Event, setParams) {
 	ZEPHIR_SEPARATE_PARAM(params);
 
 
-	if (zephir_is_instance_of(params, SL("Traversable") TSRMLS_CC)) {
+	if (zephir_is_instance_of(params, SL("Cyant\\EventManager\\Traversable") TSRMLS_CC)) {
 		ZEPHIR_INIT_VAR(_0);
 		zephir_call_func_p1(_0, "iterator_to_array", params);
+		zephir_check_call_status();
 		ZEPHIR_CPY_WRT(params, _0);
 	}
 	zephir_update_property_this(this_ptr, SL("params"), params TSRMLS_CC);
@@ -173,7 +180,7 @@ PHP_METHOD(Cyant_EventManager_Event, getParam) {
 
 	zephir_fetch_params(0, 1, 1, &name, &def);
 
-	if (!def || Z_TYPE_P(def) == IS_NULL) {
+	if (!def) {
 		def = ZEPHIR_GLOBAL(global_null);
 	}
 
@@ -200,7 +207,7 @@ PHP_METHOD(Cyant_EventManager_Event, stopPropagation) {
 
 	zephir_fetch_params(0, 0, 1, &flag_param);
 
-	if (!flag_param || Z_TYPE_P(flag_param) == IS_NULL) {
+	if (!flag_param) {
 		flag = 1;
 	} else {
 		flag = zephir_get_boolval(flag_param);

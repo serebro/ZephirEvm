@@ -14,5 +14,5 @@ ZEND_END_ARG_INFO()
 ZEPHIR_INIT_FUNCS(cyant_eventmanager_sharedlisteneraggregateinterface_method_entry) {
 	PHP_ABSTRACT_ME(Cyant_EventManager_SharedListenerAggregateInterface, attachShared, arginfo_cyant_eventmanager_sharedlisteneraggregateinterface_attachshared)
 	PHP_ABSTRACT_ME(Cyant_EventManager_SharedListenerAggregateInterface, detachShared, arginfo_cyant_eventmanager_sharedlisteneraggregateinterface_detachshared)
-	PHP_FE_END
+  PHP_FE_END
 };

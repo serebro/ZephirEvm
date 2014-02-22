@@ -56,5 +56,5 @@ ZEPHIR_INIT_FUNCS(cyant_eventmanager_sharedeventmanager_method_entry) {
 	PHP_ME(Cyant_EventManager_SharedEventManager, getListeners, arginfo_cyant_eventmanager_sharedeventmanager_getlisteners, ZEND_ACC_PUBLIC)
 	PHP_ME(Cyant_EventManager_SharedEventManager, clearListeners, arginfo_cyant_eventmanager_sharedeventmanager_clearlisteners, ZEND_ACC_PUBLIC)
 	PHP_ME(Cyant_EventManager_SharedEventManager, getEvents, arginfo_cyant_eventmanager_sharedeventmanager_getevents, ZEND_ACC_PUBLIC)
-	PHP_FE_END
+  PHP_FE_END
 };

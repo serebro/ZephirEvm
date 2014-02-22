@@ -3,7 +3,7 @@
   +------------------------------------------------------------------------+
   | Zephir Language                                                        |
   +------------------------------------------------------------------------+
-  | Copyright (c) 2011-2013 Zephir Team (http://www.zephir-lang.com)       |
+  | Copyright (c) 2011-2014 Zephir Team (http://www.zephir-lang.com)       |
   +------------------------------------------------------------------------+
   | This source file is subject to the New BSD License that is bundled     |
   | with this package in the file docs/LICENSE.txt.                        |
@@ -198,6 +198,7 @@ static void zephir_memory_restore_stack_common(zend_zephir_globals *zephir_globa
 	assert(active_memory != NULL);
 
 	if (likely(!CG(unclean_shutdown))) {
+
 		/* Clean active symbol table */
 		if (zephir_globals_ptr->active_symbol_table) {
 			active_symbol_table = zephir_globals_ptr->active_symbol_table;
@@ -251,9 +252,6 @@ static void zephir_memory_restore_stack_common(zend_zephir_globals *zephir_globa
 				}
 				else if (Z_REFCOUNT_PP(var) >= 1000000) {
 					fprintf(stderr, "%s: observed variable #%d (%p) has too many references (%u)\n", __func__, (int)i, *var, Z_REFCOUNT_PP(var));
-				}
-				else if (Z_REFCOUNT_PP(var) == 1 && Z_ISREF_PP(var)) {
-					fprintf(stderr, "%s: observed variable #%d (%p) is a reference with reference count = 1\n", __func__, (int)i, *var);
 				}
 			}
 		}
@@ -351,9 +349,9 @@ int ZEPHIR_FASTCALL zephir_memory_restore_stack(TSRMLS_D) {
 
 static void zephir_reallocate_memory(zephir_memory_entry *frame)
 {
-	void *buf = perealloc(frame->addresses, sizeof(zval **) * (frame->capacity + 16), unlikely(frame->prev == NULL));
+	void *buf = perealloc(frame->addresses, sizeof(zval **) * (frame->capacity + 8), unlikely(frame->prev == NULL));
 	if (likely(buf != NULL)) {
-		frame->capacity += 16;
+		frame->capacity += 8;
 		frame->addresses = buf;
 	}
 	else {
@@ -363,9 +361,9 @@ static void zephir_reallocate_memory(zephir_memory_entry *frame)
 
 static void zephir_reallocate_hmemory(zephir_memory_entry *frame)
 {
-	void *buf = perealloc(frame->hash_addresses, sizeof(zval **) * (frame->hash_capacity + 4), unlikely(frame->prev == NULL));
+	void *buf = perealloc(frame->hash_addresses, sizeof(zval **) * (frame->hash_capacity + 2), unlikely(frame->prev == NULL));
 	if (likely(buf != NULL)) {
-		frame->hash_capacity += 4;
+		frame->hash_capacity += 2;
 		frame->hash_addresses = buf;
 	}
 	else {
@@ -375,6 +373,7 @@ static void zephir_reallocate_hmemory(zephir_memory_entry *frame)
 
 static inline void zephir_do_memory_observe(zval **var, zephir_memory_entry *frame)
 {
+
 #ifndef ZEPHIR_RELEASE
 	if (unlikely(frame == NULL)) {
 		TSRMLS_FETCH();

@@ -4,14 +4,14 @@ top_srcdir = /Users/antoine/Workspace/zephir/cyant/ext
 top_builddir = /Users/antoine/Workspace/zephir/cyant/ext
 EGREP = /usr/bin/grep -E
 SED = /usr/bin/sed
-CONFIGURE_COMMAND = './configure'
-CONFIGURE_OPTIONS =
+CONFIGURE_COMMAND = './configure' '--enable-cyant'
+CONFIGURE_OPTIONS = '--enable-cyant'
 SHLIB_SUFFIX_NAME = dylib
 SHLIB_DL_SUFFIX_NAME = so
 ZEND_EXT_TYPE = zend_extension
 RE2C = re2c
 AWK = awk
-shared_objects_cyant = cyant.lo kernel/main.lo kernel/memory.lo kernel/exception.lo kernel/hash.lo kernel/debug.lo kernel/backtrace.lo kernel/object.lo kernel/array.lo kernel/string.lo kernel/fcall.lo kernel/alternative/fcall.lo kernel/file.lo kernel/operators.lo kernel/concat.lo cyant/eventmanager/event.lo cyant/eventmanager/eventinterface.lo cyant/eventmanager/eventmanager.lo cyant/eventmanager/eventmanagerinterface.lo cyant/eventmanager/listeneraggregateinterface.lo cyant/eventmanager/responsecollection.lo cyant/eventmanager/sharedeventmanager.lo cyant/eventmanager/sharedeventmanagerawareinterface.lo cyant/eventmanager/sharedeventmanagerinterface.lo cyant/eventmanager/sharedlisteneraggregateinterface.lo
+shared_objects_cyant = cyant.lo kernel/main.lo kernel/memory.lo kernel/exception.lo kernel/hash.lo kernel/debug.lo kernel/backtrace.lo kernel/object.lo kernel/array.lo kernel/extended/array.lo kernel/string.lo kernel/fcall.lo kernel/require.lo kernel/alternative/fcall.lo kernel/file.lo kernel/operators.lo kernel/concat.lo kernel/variables.lo cyant/eventmanager/event.lo cyant/eventmanager/eventinterface.lo cyant/eventmanager/eventmanager.lo cyant/eventmanager/eventmanagerinterface.lo cyant/eventmanager/listeneraggregateinterface.lo cyant/eventmanager/responsecollection.lo cyant/eventmanager/sharedeventmanager.lo cyant/eventmanager/sharedeventmanagerawareinterface.lo cyant/eventmanager/sharedeventmanagerinterface.lo cyant/eventmanager/sharedlisteneraggregateinterface.lo
 PHP_PECL_EXTENSION = cyant
 PHP_MODULES = $(phplibdir)/cyant.la
 PHP_ZEND_EX =
@@ -23,10 +23,10 @@ libdir = ${exec_prefix}/lib
 prefix = /usr/local/Cellar/php55/5.5.5
 phplibdir = /Users/antoine/Workspace/zephir/cyant/ext/modules
 phpincludedir = /usr/local/Cellar/php55/5.5.5/include/php
-CC = cc
-CFLAGS = -g -O2
+CC = gcc
+CFLAGS = -O2 -fvisibility=hidden -Wparentheses
 CFLAGS_CLEAN = $(CFLAGS)
-CPP = cc -E
+CPP = gcc -E
 CPPFLAGS = -DHAVE_CONFIG_H
 CXX =
 CXXFLAGS =
@@ -194,10 +194,14 @@ kernel/object.lo: /Users/antoine/Workspace/zephir/cyant/ext/kernel/object.c
 	$(LIBTOOL) --mode=compile $(CC)  -I. -I/Users/antoine/Workspace/zephir/cyant/ext $(COMMON_FLAGS) $(CFLAGS_CLEAN) $(EXTRA_CFLAGS)  -c /Users/antoine/Workspace/zephir/cyant/ext/kernel/object.c -o kernel/object.lo 
 kernel/array.lo: /Users/antoine/Workspace/zephir/cyant/ext/kernel/array.c
 	$(LIBTOOL) --mode=compile $(CC)  -I. -I/Users/antoine/Workspace/zephir/cyant/ext $(COMMON_FLAGS) $(CFLAGS_CLEAN) $(EXTRA_CFLAGS)  -c /Users/antoine/Workspace/zephir/cyant/ext/kernel/array.c -o kernel/array.lo 
+kernel/extended/array.lo: /Users/antoine/Workspace/zephir/cyant/ext/kernel/extended/array.c
+	$(LIBTOOL) --mode=compile $(CC)  -I. -I/Users/antoine/Workspace/zephir/cyant/ext $(COMMON_FLAGS) $(CFLAGS_CLEAN) $(EXTRA_CFLAGS)  -c /Users/antoine/Workspace/zephir/cyant/ext/kernel/extended/array.c -o kernel/extended/array.lo 
 kernel/string.lo: /Users/antoine/Workspace/zephir/cyant/ext/kernel/string.c
 	$(LIBTOOL) --mode=compile $(CC)  -I. -I/Users/antoine/Workspace/zephir/cyant/ext $(COMMON_FLAGS) $(CFLAGS_CLEAN) $(EXTRA_CFLAGS)  -c /Users/antoine/Workspace/zephir/cyant/ext/kernel/string.c -o kernel/string.lo 
 kernel/fcall.lo: /Users/antoine/Workspace/zephir/cyant/ext/kernel/fcall.c
 	$(LIBTOOL) --mode=compile $(CC)  -I. -I/Users/antoine/Workspace/zephir/cyant/ext $(COMMON_FLAGS) $(CFLAGS_CLEAN) $(EXTRA_CFLAGS)  -c /Users/antoine/Workspace/zephir/cyant/ext/kernel/fcall.c -o kernel/fcall.lo 
+kernel/require.lo: /Users/antoine/Workspace/zephir/cyant/ext/kernel/require.c
+	$(LIBTOOL) --mode=compile $(CC)  -I. -I/Users/antoine/Workspace/zephir/cyant/ext $(COMMON_FLAGS) $(CFLAGS_CLEAN) $(EXTRA_CFLAGS)  -c /Users/antoine/Workspace/zephir/cyant/ext/kernel/require.c -o kernel/require.lo 
 kernel/alternative/fcall.lo: /Users/antoine/Workspace/zephir/cyant/ext/kernel/alternative/fcall.c
 	$(LIBTOOL) --mode=compile $(CC)  -I. -I/Users/antoine/Workspace/zephir/cyant/ext $(COMMON_FLAGS) $(CFLAGS_CLEAN) $(EXTRA_CFLAGS)  -c /Users/antoine/Workspace/zephir/cyant/ext/kernel/alternative/fcall.c -o kernel/alternative/fcall.lo 
 kernel/file.lo: /Users/antoine/Workspace/zephir/cyant/ext/kernel/file.c
@@ -206,6 +210,8 @@ kernel/operators.lo: /Users/antoine/Workspace/zephir/cyant/ext/kernel/operators.
 	$(LIBTOOL) --mode=compile $(CC)  -I. -I/Users/antoine/Workspace/zephir/cyant/ext $(COMMON_FLAGS) $(CFLAGS_CLEAN) $(EXTRA_CFLAGS)  -c /Users/antoine/Workspace/zephir/cyant/ext/kernel/operators.c -o kernel/operators.lo 
 kernel/concat.lo: /Users/antoine/Workspace/zephir/cyant/ext/kernel/concat.c
 	$(LIBTOOL) --mode=compile $(CC)  -I. -I/Users/antoine/Workspace/zephir/cyant/ext $(COMMON_FLAGS) $(CFLAGS_CLEAN) $(EXTRA_CFLAGS)  -c /Users/antoine/Workspace/zephir/cyant/ext/kernel/concat.c -o kernel/concat.lo 
+kernel/variables.lo: /Users/antoine/Workspace/zephir/cyant/ext/kernel/variables.c
+	$(LIBTOOL) --mode=compile $(CC)  -I. -I/Users/antoine/Workspace/zephir/cyant/ext $(COMMON_FLAGS) $(CFLAGS_CLEAN) $(EXTRA_CFLAGS)  -c /Users/antoine/Workspace/zephir/cyant/ext/kernel/variables.c -o kernel/variables.lo 
 cyant/eventmanager/event.lo: /Users/antoine/Workspace/zephir/cyant/ext/cyant/eventmanager/event.c
 	$(LIBTOOL) --mode=compile $(CC)  -I. -I/Users/antoine/Workspace/zephir/cyant/ext $(COMMON_FLAGS) $(CFLAGS_CLEAN) $(EXTRA_CFLAGS)  -c /Users/antoine/Workspace/zephir/cyant/ext/cyant/eventmanager/event.c -o cyant/eventmanager/event.lo 
 cyant/eventmanager/eventinterface.lo: /Users/antoine/Workspace/zephir/cyant/ext/cyant/eventmanager/eventinterface.c

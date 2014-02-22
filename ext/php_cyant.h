@@ -1,10 +1,12 @@
 
+/* This file was generated automatically by Zephir do not modify it! */
 
 #ifndef PHP_CYANT_H
 #define PHP_CYANT_H 1
 
 #include "kernel/globals.h"
 
+#define PHP_CYANT_NAME    "cyant"
 #define PHP_CYANT_VERSION "0.0.1"
 #define PHP_CYANT_EXTNAME "cyant"
 

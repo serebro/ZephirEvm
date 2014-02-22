@@ -10,6 +10,12 @@
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #define HAVE_DLFCN_H 1
 
+/* Define to 1 if you have the <ext/json/php_json.h> header file. */
+#define HAVE_EXT_JSON_PHP_JSON_H 1
+
+/* Define to 1 if you have the <ext/pcre/php_pcre.h> header file. */
+#define HAVE_EXT_PCRE_PHP_PCRE_H 1
+
 /* Define to 1 if you have the <inttypes.h> header file. */
 #define HAVE_INTTYPES_H 1
 
@@ -60,3 +66,9 @@
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
+
+/* Whether PHP json extension is present at compile time */
+#define ZEPHIR_USE_PHP_JSON 1
+
+/* Whether PHP pcre extension is present at compile time */
+#define ZEPHIR_USE_PHP_PCRE 1

@@ -16,10 +16,14 @@ kernel/object.lo: /Users/antoine/Workspace/zephir/cyant/ext/kernel/object.c
 	$(LIBTOOL) --mode=compile $(CC)  -I. -I/Users/antoine/Workspace/zephir/cyant/ext $(COMMON_FLAGS) $(CFLAGS_CLEAN) $(EXTRA_CFLAGS)  -c /Users/antoine/Workspace/zephir/cyant/ext/kernel/object.c -o kernel/object.lo 
 kernel/array.lo: /Users/antoine/Workspace/zephir/cyant/ext/kernel/array.c
 	$(LIBTOOL) --mode=compile $(CC)  -I. -I/Users/antoine/Workspace/zephir/cyant/ext $(COMMON_FLAGS) $(CFLAGS_CLEAN) $(EXTRA_CFLAGS)  -c /Users/antoine/Workspace/zephir/cyant/ext/kernel/array.c -o kernel/array.lo 
+kernel/extended/array.lo: /Users/antoine/Workspace/zephir/cyant/ext/kernel/extended/array.c
+	$(LIBTOOL) --mode=compile $(CC)  -I. -I/Users/antoine/Workspace/zephir/cyant/ext $(COMMON_FLAGS) $(CFLAGS_CLEAN) $(EXTRA_CFLAGS)  -c /Users/antoine/Workspace/zephir/cyant/ext/kernel/extended/array.c -o kernel/extended/array.lo 
 kernel/string.lo: /Users/antoine/Workspace/zephir/cyant/ext/kernel/string.c
 	$(LIBTOOL) --mode=compile $(CC)  -I. -I/Users/antoine/Workspace/zephir/cyant/ext $(COMMON_FLAGS) $(CFLAGS_CLEAN) $(EXTRA_CFLAGS)  -c /Users/antoine/Workspace/zephir/cyant/ext/kernel/string.c -o kernel/string.lo 
 kernel/fcall.lo: /Users/antoine/Workspace/zephir/cyant/ext/kernel/fcall.c
 	$(LIBTOOL) --mode=compile $(CC)  -I. -I/Users/antoine/Workspace/zephir/cyant/ext $(COMMON_FLAGS) $(CFLAGS_CLEAN) $(EXTRA_CFLAGS)  -c /Users/antoine/Workspace/zephir/cyant/ext/kernel/fcall.c -o kernel/fcall.lo 
+kernel/require.lo: /Users/antoine/Workspace/zephir/cyant/ext/kernel/require.c
+	$(LIBTOOL) --mode=compile $(CC)  -I. -I/Users/antoine/Workspace/zephir/cyant/ext $(COMMON_FLAGS) $(CFLAGS_CLEAN) $(EXTRA_CFLAGS)  -c /Users/antoine/Workspace/zephir/cyant/ext/kernel/require.c -o kernel/require.lo 
 kernel/alternative/fcall.lo: /Users/antoine/Workspace/zephir/cyant/ext/kernel/alternative/fcall.c
 	$(LIBTOOL) --mode=compile $(CC)  -I. -I/Users/antoine/Workspace/zephir/cyant/ext $(COMMON_FLAGS) $(CFLAGS_CLEAN) $(EXTRA_CFLAGS)  -c /Users/antoine/Workspace/zephir/cyant/ext/kernel/alternative/fcall.c -o kernel/alternative/fcall.lo 
 kernel/file.lo: /Users/antoine/Workspace/zephir/cyant/ext/kernel/file.c
@@ -28,6 +32,8 @@ kernel/operators.lo: /Users/antoine/Workspace/zephir/cyant/ext/kernel/operators.
 	$(LIBTOOL) --mode=compile $(CC)  -I. -I/Users/antoine/Workspace/zephir/cyant/ext $(COMMON_FLAGS) $(CFLAGS_CLEAN) $(EXTRA_CFLAGS)  -c /Users/antoine/Workspace/zephir/cyant/ext/kernel/operators.c -o kernel/operators.lo 
 kernel/concat.lo: /Users/antoine/Workspace/zephir/cyant/ext/kernel/concat.c
 	$(LIBTOOL) --mode=compile $(CC)  -I. -I/Users/antoine/Workspace/zephir/cyant/ext $(COMMON_FLAGS) $(CFLAGS_CLEAN) $(EXTRA_CFLAGS)  -c /Users/antoine/Workspace/zephir/cyant/ext/kernel/concat.c -o kernel/concat.lo 
+kernel/variables.lo: /Users/antoine/Workspace/zephir/cyant/ext/kernel/variables.c
+	$(LIBTOOL) --mode=compile $(CC)  -I. -I/Users/antoine/Workspace/zephir/cyant/ext $(COMMON_FLAGS) $(CFLAGS_CLEAN) $(EXTRA_CFLAGS)  -c /Users/antoine/Workspace/zephir/cyant/ext/kernel/variables.c -o kernel/variables.lo 
 cyant/eventmanager/event.lo: /Users/antoine/Workspace/zephir/cyant/ext/cyant/eventmanager/event.c
 	$(LIBTOOL) --mode=compile $(CC)  -I. -I/Users/antoine/Workspace/zephir/cyant/ext $(COMMON_FLAGS) $(CFLAGS_CLEAN) $(EXTRA_CFLAGS)  -c /Users/antoine/Workspace/zephir/cyant/ext/cyant/eventmanager/event.c -o cyant/eventmanager/event.lo 
 cyant/eventmanager/eventinterface.lo: /Users/antoine/Workspace/zephir/cyant/ext/cyant/eventmanager/eventinterface.c

@@ -15,7 +15,7 @@ namespace Cyant\EventManager;
  * The assumption is that the SharedEventManager will be injected into EventManager
  * instances, and then queried for additional listeners when triggering an event.
  */
-class SharedEventManager implements Cyant\EventManager\SharedEventManagerInterface
+class SharedEventManager implements SharedEventManagerInterface
 {
     /**
      * Identifiers that are mapped to listeners
@@ -46,32 +46,26 @@ class SharedEventManager implements Cyant\EventManager\SharedEventManagerInterfa
      */
     public function attach(identifiers, string eventName, var listener, int priority = 1)
     {
-        var identifier;
-
         if is_string(identifiers) {
             let identifiers = [identifiers];
         }
 
-        for identifier in identifiers {
+        var key;
+        for key in identifiers {
 
-            if null {
-
-            }
-            /*
-            if !isset this->identifiers[identifier] {
-                let this->identifiers[identifer] = [];
+            if !isset this->identifiers[key] {
+                let this->identifiers[key] = [];
             }
 
-            if !isset this->identifiers[identifier][eventName] {
-                let this->identifiers[identifier][eventName] = [];
+            if !isset this->identifiers[key][eventName] {
+                let this->identifiers[key][eventName] = [];
             }
 
-            if !isset this->identifiers[identifier][eventName][priority . ".0"] {
-                let this->identifiers[identifier][eventName][priority . ".0"] = [];
+            if !isset this->identifiers[key][eventName][priority . ".0"] {
+                let this->identifiers[key][eventName][priority . ".0"] = [];
             }
 
-            array_push(this->identifiers[identifier][eventName][priority . ".0"], listener);
-            */
+            array_push(this->identifiers[key][eventName][priority . ".0"], listener);
         }
 
         return listener;
@@ -109,8 +103,8 @@ class SharedEventManager implements Cyant\EventManager\SharedEventManagerInterfa
             for event in this->identifiers[identifier] {
                 for listeners in event {
 
-                    let key = array_search(listener, listeners, true) !== false;
-                    if key {
+                    let key = array_search(listener, listeners, true);
+                    if key !== false {
                         unset(listeners[key]);
                         return true;
                     }

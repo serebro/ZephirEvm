@@ -11,7 +11,7 @@ namespace Cyant\EventManager;
 /**
  * Interface for messengers
  */
-interface EventManagerInterface extends Cyant\EventManager\SharedEventManagerAwareInterface
+interface EventManagerInterface extends SharedEventManagerAwareInterface
 {
     /**
      * Attach a listener to an event
@@ -30,7 +30,7 @@ interface EventManagerInterface extends Cyant\EventManager\SharedEventManagerAwa
      * @param  int                        priority If provided, a suggested priority for the aggregate to use
      * @return mixed
      */
-    public function attachAggregate(<Cyant\EventManager\ListenerAggregateInterface> aggregate, int priority = 1);
+    public function attachAggregate(<ListenerAggregateInterface> aggregate, int priority = 1);
 
     /**
      * Detach an event listener
@@ -47,7 +47,7 @@ interface EventManagerInterface extends Cyant\EventManager\SharedEventManagerAwa
      * @param  ListenerAggregateInterface aggregate
      * @return bool
      */
-    public function detachAggregate(<Cyant\EventManager\ListenerAggregateInterface> aggregate);
+    public function detachAggregate(<ListenerAggregateInterface> aggregate);
 
     /**
      * Trigger an event (optionally until using a callback returns a boolean true)
@@ -57,7 +57,7 @@ interface EventManagerInterface extends Cyant\EventManager\SharedEventManagerAwa
      * @param  callable|null       callback
      * @return ResponseCollection
      */
-    public function trigger(string eventName, <Cyant\EventManager\EventInterface> event = null, callback = null);
+    public function trigger(string eventName, <EventInterface> event = null, callback = null);
 
     /**
      * Get a list of event names for which this collection has listeners

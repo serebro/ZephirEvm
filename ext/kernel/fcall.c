@@ -3,7 +3,7 @@
   +------------------------------------------------------------------------+
   | Zephir Language                                                        |
   +------------------------------------------------------------------------+
-  | Copyright (c) 2011-2013 Zephir Team (http://www.zephir-lang.com)       |
+  | Copyright (c) 2011-2014 Zephir Team (http://www.zephir-lang.com)       |
   +------------------------------------------------------------------------+
   | This source file is subject to the New BSD License that is bundled     |
   | with this package in the file docs/LICENSE.txt.                        |
@@ -14,6 +14,7 @@
   +------------------------------------------------------------------------+
   | Authors: Andres Gutierrez <andres@zephir-lang.com>                     |
   |          Eduar Carvajal <eduar@zephir-lang.com>                        |
+  |          Vladimir Kolesnikov <vladimir@extrememember.com>              |
   +------------------------------------------------------------------------+
 */
 
@@ -52,7 +53,7 @@ int zephir_has_constructor_ce(zend_class_entry *ce) {
 /**
  * Check if an object has a constructor
  */
-int zephir_has_constructor(const zval *object TSRMLS_DC){
+int zephir_has_constructor(const zval *object TSRMLS_DC) {
 	return zephir_has_constructor_ce(Z_OBJCE_P(object));
 }
 
@@ -79,7 +80,7 @@ static int zephir_call_user_function(HashTable *function_table, zval **object_pp
 
 	if (unlikely(zephir_globals_ptr->recursive_lock > 2048)) {
 		ex_retval = FAILURE;
-		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Maximum recursion depth exceeded");
+		zephir_throw_exception_string(spl_ce_RuntimeException, SL("Maximum recursion depth exceeded") TSRMLS_CC);
 	} else {
 
 		if (param_count) {
@@ -182,7 +183,7 @@ static int zephir_call_func_vparams(zval *return_value, zval **return_value_ptr,
 		} else {
 			if (unlikely(param_count > 10)) {
 				free_params = 1;
-				params      = (zval**)emalloc(param_count * sizeof(zval*));
+				params      = (zval**) emalloc(param_count * sizeof(zval*));
 				params_ptr  = params;
 				for (i = 0; i < param_count; ++i) {
 					params[i] = va_arg(ap, zval*);
@@ -201,10 +202,13 @@ static int zephir_call_func_vparams(zval *return_value, zval **return_value_ptr,
 	}
 
 	if (status == FAILURE) {
-		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Call to undefined function %s()", Z_STRVAL_P(func));
-	}
-	else if (EG(exception)) {
+		//php_error_docref(NULL TSRMLS_CC, E_ERROR, "Call to undefined function %s()", Z_STRVAL_P(func));
+		zephir_throw_exception_string(spl_ce_RuntimeException, SL("Call to undefined function xx()") TSRMLS_CC);
 		status = FAILURE;
+	} else {
+		if (EG(exception)) {
+			status = FAILURE;
+		}
 	}
 
 	if (!caller_wants_result) {
@@ -322,7 +326,7 @@ static int zephir_call_static_zval_str_func_vparams(zval *return_value, zval **r
 		free_params = 1;
 		params      = (zval**)emalloc(param_count * sizeof(zval*));
 		params_ptr  = params;
-		for (i=0; i<param_count; ++i) {
+		for (i = 0; i < param_count; ++i) {
 			params[i] = va_arg(ap, zval*);
 		}
 	}
@@ -389,6 +393,80 @@ int zephir_call_func_params(zval *return_value, zval **return_value_ptr, const c
 }
 
 /**
+ * @brief Calls function @a func_name which accepts @a param_count arguments @a params
+ * @param[out] Return value; set to @c NULL if the return value is not needed
+ * @param func_name Function name
+ * @param func_length Length of the function name
+ * @param param_count Number of arguments
+ * @param params Arguments
+ * @return Whether the call succeeded
+ * @retval @c SUCCESS
+ * @retval @c FAILURE
+ */
+int zephir_call_internal_func_params(zval *return_value, zval **return_value_ptr, const char *func_name, int func_length, zend_function **function_ptr TSRMLS_DC, int param_count, ...) {
+
+	va_list va;
+	int i, caller_wants_result = 1;
+	zend_function *function_handler = NULL;
+
+	if (!return_value) {
+		ALLOC_INIT_ZVAL(return_value);
+		caller_wants_result = 0;
+	} else {
+		zephir_check_return_value(return_value);
+	}
+
+	if (!*function_ptr) {
+		if (zend_hash_find(EG(function_table), func_name, func_length + 1, (void**)&function_handler) == FAILURE) {
+			return FAILURE;
+		}
+		*function_ptr = function_handler;
+	}
+
+	ZEND_VM_STACK_GROW_IF_NEEDED(param_count + 1);
+
+	va_start(va, param_count);
+	for (i = 0; i < param_count; ++i) {
+
+		zval *param = va_arg(va, zval*);
+		Z_ADDREF_P(param);
+
+		#if PHP_VERSION_ID < 50500
+		zend_vm_stack_push_nocheck(param TSRMLS_CC);
+		#else
+		zend_vm_stack_push(param TSRMLS_CC);
+		#endif
+
+	}
+	va_end(va);
+
+	#if PHP_VERSION_ID < 50500
+	zend_vm_stack_push_nocheck((void*)(zend_uintptr_t) param_count TSRMLS_CC);
+	#else
+	zend_vm_stack_push((void*)(zend_uintptr_t) param_count TSRMLS_CC);
+	#endif
+
+	(*function_ptr)->internal_function.handler(param_count, return_value, &return_value, NULL, 1 TSRMLS_CC);
+
+	#if PHP_VERSION_ID < 50500
+	zend_vm_stack_clear_multiple(TSRMLS_C);
+	#else
+	zend_vm_stack_clear_multiple(0 TSRMLS_CC);
+	#endif
+
+	if (!caller_wants_result) {
+		zval_ptr_dtor(&return_value);
+	}
+
+	if (EG(exception)) {
+		zephir_throw_exception_internal(NULL TSRMLS_CC);
+	}
+
+	return SUCCESS;
+
+}
+
+/**
  * @brief Calls methid @a method_name from @a object which accepts @a param_count arguments @a params
  * @param[out] Return value; set to @c NULL if the return value is not needed
  * @param object Object
@@ -410,6 +488,98 @@ int zephir_call_method_params(zval *return_value, zval **return_value_ptr, zval 
 	va_end(ap);
 
 	return status;
+}
+
+/**
+ * @brief Calls methid @a method_name from @a object which accepts @a param_count arguments @a params
+ * @param[out] Return value; set to @c NULL if the return value is not needed
+ * @param object Object
+ * @param method_name Method name
+ * @param method_length Length of the method name
+ * @param param_count Number of arguments
+ * @param params Arguments
+ * @return Whether the call succeeded
+ * @retval @c SUCCESS
+ * @retval @c FAILURE
+ */
+int zephir_call_internal_method_params(zval *return_value, zval **return_value_ptr, zval *object, char *method_name, int method_len, void (* function_ptr)(INTERNAL_FUNCTION_PARAMETERS) TSRMLS_DC, int param_count, ...) {
+
+	zval *current_this;
+	zend_class_entry *current_scope, *ce;
+	zend_class_entry *current_called_scope;
+	zend_class_entry *calling_scope = NULL;
+	zend_class_entry *called_scope = NULL;
+	va_list va;
+	int i, caller_wants_result = 1;
+
+	if (unlikely(Z_TYPE_P(object) != IS_OBJECT)) {
+		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Call to method %s() on a non object", method_name);
+		return FAILURE;
+	}
+
+	if (!return_value) {
+		ALLOC_INIT_ZVAL(return_value);
+		caller_wants_result = 0;
+	} else {
+		zephir_check_return_value(return_value);
+	}
+
+	ZEND_VM_STACK_GROW_IF_NEEDED(param_count + 1);
+
+	va_start(va, param_count);
+	for (i = 0; i < param_count; ++i) {
+
+		zval *param = va_arg(va, zval*);
+		Z_ADDREF_P(param);
+
+		#if PHP_VERSION_ID < 50500
+		zend_vm_stack_push_nocheck(param TSRMLS_CC);
+		#else
+		zend_vm_stack_push(param TSRMLS_CC);
+		#endif
+
+	}
+	va_end(va);
+
+	//EX(function_state).arguments = zend_vm_stack_top(TSRMLS_C);
+	#if PHP_VERSION_ID < 50500
+	zend_vm_stack_push_nocheck((void*)(zend_uintptr_t) param_count TSRMLS_CC);
+	#else
+	zend_vm_stack_push((void*)(zend_uintptr_t) param_count TSRMLS_CC);
+	#endif
+
+	current_scope = EG(scope);
+	EG(scope) = Z_OBJCE_P(object);
+	current_this = EG(This);
+	current_called_scope = EG(called_scope);
+	//EX(function_state).function = function_ptr;
+	//EX(object) = object;
+
+	function_ptr(param_count, return_value, &return_value, object, 1 TSRMLS_CC);
+
+	#if PHP_VERSION_ID < 50500
+	zend_vm_stack_clear_multiple(TSRMLS_C);
+	#else
+	zend_vm_stack_clear_multiple(0 TSRMLS_CC);
+	#endif
+
+	EG(called_scope) = current_called_scope;
+	EG(scope) = current_scope;
+	EG(This) = current_this;
+
+	if (EG(exception)) {
+		zephir_throw_exception_internal(NULL TSRMLS_CC);
+	}
+
+	if (!caller_wants_result) {
+		zval_ptr_dtor(&return_value);
+	}
+
+	if (EG(exception)) {
+		return FAILURE;
+	}
+
+	return SUCCESS;
 }
 
 int zephir_call_method_cache_params(zval *return_value, zval **return_value_ptr, zval *object,

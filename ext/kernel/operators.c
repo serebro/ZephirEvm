@@ -3,7 +3,7 @@
   +------------------------------------------------------------------------+
   | Zephir Language                                                        |
   +------------------------------------------------------------------------+
-  | Copyright (c) 2011-2013 Zephir Team (http://www.zephir-lang.com)       |
+  | Copyright (c) 2011-2014 Zephir Team (http://www.zephir-lang.com)       |
   +------------------------------------------------------------------------+
   | This source file is subject to the New BSD License that is bundled     |
   | with this package in the file docs/LICENSE.txt.                        |
@@ -14,6 +14,7 @@
   +------------------------------------------------------------------------+
   | Authors: Andres Gutierrez <andres@zephir-lang.com>                     |
   |          Eduar Carvajal <eduar@zephir-lang.com>                        |
+  |          Vladimir Kolesnikov <vladimir@extrememember.com>              |
   +------------------------------------------------------------------------+
 */
 
@@ -226,7 +227,7 @@ void zephir_concat_self_char(zval **left, unsigned char right TSRMLS_DC) {
 /**
  * Natural compare with string operandus on right
  */
-int zephir_compare_strict_string(zval *op1, const char *op2, int op2_length){
+int zephir_compare_strict_string(zval *op1, const char *op2, int op2_length) {
 
 	switch (Z_TYPE_P(op1)) {
 		case IS_STRING:
@@ -253,7 +254,7 @@ int zephir_compare_strict_string(zval *op1, const char *op2, int op2_length){
 /**
  * Natural compare with long operandus on right
  */
-int zephir_compare_strict_long(zval *op1, long op2 TSRMLS_DC){
+int zephir_compare_strict_long(zval *op1, long op2 TSRMLS_DC) {
 
 	int bool_result;
 
@@ -266,9 +267,9 @@ int zephir_compare_strict_long(zval *op1, long op2 TSRMLS_DC){
 			return 0 == op2;
 		case IS_BOOL:
 			if (Z_BVAL_P(op1)) {
-				return 0 == op2;
-			} else {
 				return 1 == op2;
+			} else {
+				return 0 == op2;
 			}
 		default:
 			{
@@ -286,7 +287,7 @@ int zephir_compare_strict_long(zval *op1, long op2 TSRMLS_DC){
 /**
  * Do add function keeping ref_count and is_ref
  */
-int zephir_add_function(zval *result, zval *op1, zval *op2 TSRMLS_DC){
+int zephir_add_function(zval *result, zval *op1, zval *op2 TSRMLS_DC) {
 	int status;
 	int ref_count = Z_REFCOUNT_P(result);
 	int is_ref = Z_ISREF_P(result);
@@ -294,6 +295,29 @@ int zephir_add_function(zval *result, zval *op1, zval *op2 TSRMLS_DC){
 	Z_SET_REFCOUNT_P(result, ref_count);
 	Z_SET_ISREF_TO_P(result, is_ref);
 	return status;
+}
+
+void zephir_negate(zval *z TSRMLS_DC) {
+	while (1) {
+		switch (Z_TYPE_P(z)) {
+			case IS_LONG:
+			case IS_BOOL:
+				ZVAL_LONG(z, -Z_LVAL_P(z));
+				return;
+
+			case IS_DOUBLE:
+				ZVAL_DOUBLE(z, -Z_DVAL_P(z));
+				return;
+
+			case IS_NULL:
+				ZVAL_LONG(z, 0);
+				return;
+
+			default:
+				convert_scalar_to_number(z TSRMLS_CC);
+				assert(Z_TYPE_P(z) == IS_LONG || Z_TYPE_P(z) == IS_DOUBLE);
+		}
+	}
 }
 
 /**
@@ -331,12 +355,16 @@ void zephir_cast(zval *result, zval *var, zend_uint type){
 long zephir_get_intval_ex(const zval *op) {
 
 	switch (Z_TYPE_P(op)) {
+
 		case IS_LONG:
 			return Z_LVAL_P(op);
+
 		case IS_BOOL:
 			return Z_BVAL_P(op);
+
 		case IS_DOUBLE:
 			return (long) Z_DVAL_P(op);
+
 		case IS_STRING: {
 			long long_value = 0;
 			double double_value = 0;
@@ -544,3 +572,69 @@ int zephir_is_identical(zval *op1, zval *op2 TSRMLS_DC) {
 	is_identical_function(&result, op1, op2 TSRMLS_CC);
 	return Z_BVAL(result);
 }
+
+/**
+ * Do bitwise_and function keeping ref_count and is_ref
+ */
+int zephir_bitwise_and_function(zval *result, zval *op1, zval *op2 TSRMLS_DC){
+	int status;
+	int ref_count = Z_REFCOUNT_P(result);
+	int is_ref = Z_ISREF_P(result);
+	status = bitwise_and_function(result, op1, op2 TSRMLS_CC);
+	Z_SET_REFCOUNT_P(result, ref_count);
+	Z_SET_ISREF_TO_P(result, is_ref);
+	return status;
+}
+
+/**
+ * Do bitwise_or function keeping ref_count and is_ref
+ */
+int zephir_bitwise_or_function(zval *result, zval *op1, zval *op2 TSRMLS_DC){
+	int status;
+	int ref_count = Z_REFCOUNT_P(result);
+	int is_ref = Z_ISREF_P(result);
+	status = bitwise_or_function(result, op1, op2 TSRMLS_CC);
+	Z_SET_REFCOUNT_P(result, ref_count);
+	Z_SET_ISREF_TO_P(result, is_ref);
+	return status;
+}
+
+/**
+ * Do bitwise_xor function keeping ref_count and is_ref
+ */
+int zephir_bitwise_xor_function(zval *result, zval *op1, zval *op2 TSRMLS_DC){
+	int status;
+	int ref_count = Z_REFCOUNT_P(result);
+	int is_ref = Z_ISREF_P(result);
+	status = bitwise_xor_function(result, op1, op2 TSRMLS_CC);
+	Z_SET_REFCOUNT_P(result, ref_count);
+	Z_SET_ISREF_TO_P(result, is_ref);
+	return status;
+}
+
+/**
+ * Do shiftleft function keeping ref_count and is_ref
+ */
+int zephir_shift_left_function(zval *result, zval *op1, zval *op2 TSRMLS_DC){
+	int status;
+	int ref_count = Z_REFCOUNT_P(result);
+	int is_ref = Z_ISREF_P(result);
+	status = shift_left_function(result, op1, op2 TSRMLS_CC);
+	Z_SET_REFCOUNT_P(result, ref_count);
+	Z_SET_ISREF_TO_P(result, is_ref);
+	return status;
+}
+
+/**
+ * Do shiftright function keeping ref_count and is_ref
+ */
+int zephir_shift_right_function(zval *result, zval *op1, zval *op2 TSRMLS_DC){
+	int status;
+	int ref_count = Z_REFCOUNT_P(result);
+	int is_ref = Z_ISREF_P(result);
+	status = shift_right_function(result, op1, op2 TSRMLS_CC);
+	Z_SET_REFCOUNT_P(result, ref_count);
+	Z_SET_ISREF_TO_P(result, is_ref);
+	return status;
+}
+

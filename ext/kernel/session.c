@@ -3,7 +3,7 @@
   +------------------------------------------------------------------------+
   | Zephir Language                                                        |
   +------------------------------------------------------------------------+
-  | Copyright (c) 2011-2013 Zephir Team  (http://www.zephir-lang.com)      |
+  | Copyright (c) 2011-2014 Zephir Team  (http://www.zephir-lang.com)      |
   +------------------------------------------------------------------------+
   | This source file is subject to the New BSD License that is bundled     |
   | with this package in the file docs/LICENSE.txt.                        |
@@ -30,7 +30,7 @@
 #include "kernel/session.h"
 
 #ifdef ZEPHIR_USE_PHP_SESSION
-#include "ext/session/php_session.h"
+#include <ext/session/php_session.h>
 #endif
 
 void zephir_session_start(TSRMLS_D)

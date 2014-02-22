@@ -19,7 +19,7 @@ interface SharedEventManagerAwareInterface
      * @param  SharedEventManagerInterface sharedEventManager
      * @return SharedEventManagerAwareInterface
      */
-    public function setSharedManager(<Cyant\EventManager\SharedEventManagerInterface> sharedEventManager);
+    public function setSharedManager(<SharedEventManagerInterface> sharedEventManager);
 
     /**
      * Get shared collections container

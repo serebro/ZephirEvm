@@ -50,5 +50,5 @@ ZEPHIR_INIT_FUNCS(cyant_eventmanager_event_method_entry) {
 	PHP_ME(Cyant_EventManager_Event, getParam, arginfo_cyant_eventmanager_event_getparam, ZEND_ACC_PUBLIC)
 	PHP_ME(Cyant_EventManager_Event, stopPropagation, arginfo_cyant_eventmanager_event_stoppropagation, ZEND_ACC_PUBLIC)
 	PHP_ME(Cyant_EventManager_Event, isPropagationStopped, NULL, ZEND_ACC_PUBLIC)
-	PHP_FE_END
+  PHP_FE_END
 };

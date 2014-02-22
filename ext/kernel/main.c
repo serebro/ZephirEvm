@@ -3,7 +3,7 @@
   +------------------------------------------------------------------------+
   | Zephir Language                                                        |
   +------------------------------------------------------------------------+
-  | Copyright (c) 2011-2013 Zephir Team (http://www.zephir-lang.com)       |
+  | Copyright (c) 2011-2014 Zephir Team (http://www.zephir-lang.com)       |
   +------------------------------------------------------------------------+
   | This source file is subject to the New BSD License that is bundled     |
   | with this package in the file docs/LICENSE.txt.                        |
@@ -33,24 +33,6 @@
 
 #include "Zend/zend_exceptions.h"
 #include "Zend/zend_interfaces.h"
-
-/**
- * Initialize globals on each request or each thread started
- */
-void php_zephir_init_globals(zend_zephir_globals *zephir_globals TSRMLS_DC) {
-
-	/* Memory options */
-	zephir_globals->active_memory = NULL;
-
-	/* Virtual Symbol Tables */
-	zephir_globals->active_symbol_table = NULL;
-
-	/* Cache options */
-	zephir_globals->function_cache = NULL;
-
-	/* Recursive Lock */
-	zephir_globals->recursive_lock = 0;
-}
 
 /**
  * Initializes internal interface with extends
@@ -175,7 +157,7 @@ int zephir_fast_count_ev(zval *value TSRMLS_DC) {
 	long count = 0;
 
 	if (Z_TYPE_P(value) == IS_ARRAY) {
-		return (int) zend_hash_num_elements(Z_ARRVAL_P(value)) > 0;
+		return zend_hash_num_elements(Z_ARRVAL_P(value)) > 0;
 	}
 
 	if (Z_TYPE_P(value) == IS_OBJECT) {
@@ -220,7 +202,7 @@ int zephir_fast_count_int(zval *value TSRMLS_DC) {
 	long count = 0;
 
 	if (Z_TYPE_P(value) == IS_ARRAY) {
-		return (int) zend_hash_num_elements(Z_ARRVAL_P(value));
+		return zend_hash_num_elements(Z_ARRVAL_P(value));
 	}
 
 	if (Z_TYPE_P(value) == IS_OBJECT) {
@@ -326,9 +308,17 @@ int zephir_is_iterable_ex(zval *arr, HashTable **arr_hash, HashPosition *hash_po
 	}
 
 	if (reverse) {
-		zend_hash_internal_pointer_end_ex(*arr_hash, hash_position);
-	} else {
-		zend_hash_internal_pointer_reset_ex(*arr_hash, hash_position);
+		if (hash_position) {
+			*hash_position = (*arr_hash)->pListTail;		
+		} else {
+			(*arr_hash)->pInternalPointer = (*arr_hash)->pListTail;
+		}		
+	} else {		
+		if (hash_position) {
+			*hash_position = (*arr_hash)->pListHead;
+		} else {
+			(*arr_hash)->pInternalPointer = (*arr_hash)->pListHead;
+		}
 	}
 
 	return 1;
@@ -381,4 +371,53 @@ int zephir_fetch_parameters(int num_args TSRMLS_DC, int required_args, int optio
 	va_end(va);
 
 	return SUCCESS;
+}
+
+/**
+ * Returns the type of a variable as a string
+ */
+void zephir_gettype(zval *return_value, zval *arg TSRMLS_DC) {
+
+	switch (Z_TYPE_P(arg)) {
+		case IS_NULL:
+			RETVAL_STRING("NULL", 1);
+			break;
+
+		case IS_BOOL:
+			RETVAL_STRING("boolean", 1);
+			break;
+
+		case IS_LONG:
+			RETVAL_STRING("integer", 1);
+			break;
+
+		case IS_DOUBLE:
+			RETVAL_STRING("double", 1);
+			break;
+	
+		case IS_STRING:
+			RETVAL_STRING("string", 1);
+			break;
+	
+		case IS_ARRAY:
+			RETVAL_STRING("array", 1);
+			break;
+
+		case IS_OBJECT:
+			RETVAL_STRING("object", 1);	
+			break;
+
+		case IS_RESOURCE:
+			{
+				const char *type_name = zend_rsrc_list_get_rsrc_type(Z_LVAL_P(arg) TSRMLS_CC);
+
+				if (type_name) {
+					RETVAL_STRING("resource", 1);
+					break;
+				}
+			}
+
+		default:
+			RETVAL_STRING("unknown type", 1);
+	}
 }
